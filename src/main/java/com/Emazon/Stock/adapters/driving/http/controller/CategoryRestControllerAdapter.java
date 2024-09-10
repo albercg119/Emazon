@@ -7,7 +7,6 @@ import com.Emazon.Stock.adapters.driving.http.mapper.ICategoryResponseMapper;
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/category")
-@RequiredArgsConstructor
 public class CategoryRestControllerAdapter {
+
+    public CategoryRestControllerAdapter(ICategoryServicePort categoryServicePort, ICategoryRequestMapper categoryRequestMapper, ICategoryResponseMapper categoryResponseMapper) {
+        this.categoryServicePort = categoryServicePort;
+        this.categoryRequestMapper = categoryRequestMapper;
+        this.categoryResponseMapper = categoryResponseMapper;
+    }
 
     private final ICategoryServicePort categoryServicePort;
     private final ICategoryRequestMapper categoryRequestMapper;
@@ -47,5 +51,6 @@ public class CategoryRestControllerAdapter {
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryResponseMapper.toCategoryResponseList(categoryServicePort.getAllCategories()));
     }
+
 
 }
