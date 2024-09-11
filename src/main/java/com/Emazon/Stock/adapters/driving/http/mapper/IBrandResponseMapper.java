@@ -2,6 +2,7 @@ package com.Emazon.Stock.adapters.driving.http.mapper;
 
 import com.Emazon.Stock.adapters.driving.http.dto.response.BrandResponse;
 import com.Emazon.Stock.domain.model.Brand;
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,5 +19,7 @@ public interface IBrandResponseMapper {
     @Mapping(source = "nombre", target = "name")
     @Mapping(source = "descripcion", target = "description")
     List<BrandResponse> toBrandResponseList(List<Brand> brands);
+
+    PagedResult<BrandResponse> toBrandResponsePagedResult(PagedResult<Brand> pagedResult);
 }
 

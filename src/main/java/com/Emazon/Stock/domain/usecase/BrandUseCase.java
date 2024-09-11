@@ -3,6 +3,9 @@ package com.Emazon.Stock.domain.usecase;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.spi.IBrandPersistencePort;
+import com.Emazon.Stock.domain.utilities.PagedResult;
+
+import java.util.List;
 
 public class BrandUseCase implements IBrandServicePort {
 
@@ -19,6 +22,15 @@ public class BrandUseCase implements IBrandServicePort {
         brandPersistencePort.saveBrand(brand);
     }
 
+    @Override
+    public PagedResult<Brand> getPagedBrands(Integer page, Integer size, boolean ascending) {
+        return brandPersistencePort.getPagedBrands(page, size, ascending);
+    }
+
+    @Override
+    public List<Brand> getAllBrands() {
+        return brandPersistencePort.getAllBrands();
+    }
 
 
     private void validateBrand(Brand brand) {

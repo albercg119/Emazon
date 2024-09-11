@@ -2,11 +2,15 @@ package com.Emazon.Stock.domain.usecase;
 
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.spi.IBrandPersistencePort;
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -122,5 +126,56 @@ class BrandUseCaseTest {
         assertEquals("Brand name must be unique", exception.getMessage());
 
         verify(brandPersistencePort, times(1)).existsByName("Sony");
+    }
+
+    @Test
+    void getPagedBrands_ShouldReturnPagedBrands_WhenDataIsAvailable() {
+        // Arrange: Create a list of brands and a page
+        List<Brand> brandList = Arrays.asList(
+                new Brand(1L, "Brand 1", "Description 1"),
+                new Brand(2L, "Brand 2", "Description 2")
+        );
+
+        PagedResult<Brand> pagedResult = new PagedResult<>(
+                brandList, 0, 10, 2L, 1
+        );
+
+        // Mock behavior
+        when(brandPersistencePort.getPagedBrands(0, 10, true)).thenReturn(pagedResult);
+
+        // Act
+        PagedResult<Brand> result = brandUseCase.getPagedBrands(0, 10, true);
+
+        // Assert
+        assertEquals(2, result.getContent().size());
+        assertEquals("Brand 1", result.getContent().get(0).getNombre());
+        assertEquals(1, result.getTotalPages());
+
+        // Verify method call
+        verify(brandPersistencePort, times(1)).getPagedBrands(0, 10, true);
+    }
+
+    @Test
+    void getAllBrands_ShouldReturnAllBrands_WhenDataIsAvailable() {
+        // Arrange
+        Brand brand1 = new Brand(1L, "Brand1", "Description1");
+        Brand brand2 = new Brand(2L, "Brand2", "Description2");
+
+        List<Brand> brands = Arrays.asList(brand1, brand2);
+
+        // Mock behavior
+        when(brandPersistencePort.getAllBrands()).thenReturn(brands);
+
+        // Act
+        List<Brand> result = brandUseCase.getAllBrands();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Brand1", result.get(0).getNombre());
+        assertEquals("Brand2", result.get(1).getNombre());
+
+        // Verify method call
+        verify(brandPersistencePort, times(1)).getAllBrands();
     }
 }
