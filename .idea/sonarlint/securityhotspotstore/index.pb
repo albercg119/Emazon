@@ -17,3 +17,9 @@ s
 Csrc/main/java/com/Emazon/Stock/configuration/BeanConfiguration.java,8\d\8dbf8d57566e6e10216ecb8768d69e1607f3c389
 <
 build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
+„
+Tsrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/adapter/entity/CategoryEntity.java,c\e\cecc0fba034c9f53c22c5622aa2caed9523543f4
+…
+Usrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/repository/ICategoryRepository.java,4\f\4f4dc04b04c69d2c13d1ec75c4eb893f04805a2a
+w
+Gsrc/main/java/com/Emazon/Stock/domain/spi/ICategoryPersistencePort.java,1\c\1cc394fd23d63c465023dec8f662fdfa7c174431
