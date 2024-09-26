@@ -1,5 +1,6 @@
 package com.Emazon.Stock.adapters.driving.http.controller;
 
+import com.Emazon.Stock.adapters.utilities.CategoryControllerConstants;
 import com.Emazon.Stock.adapters.driving.http.dto.request.AddCategoryRequest;
 import com.Emazon.Stock.adapters.driving.http.dto.response.CategoryResponse;
 import com.Emazon.Stock.adapters.driving.http.mapper.ICategoryRequestMapper;
@@ -18,39 +19,51 @@ import java.util.List;
 @RequestMapping("/category")
 public class CategoryRestControllerAdapter {
 
-    public CategoryRestControllerAdapter(ICategoryServicePort categoryServicePort, ICategoryRequestMapper categoryRequestMapper, ICategoryResponseMapper categoryResponseMapper) {
+    private final ICategoryServicePort categoryServicePort;
+    private final ICategoryRequestMapper categoryRequestMapper;
+    private final ICategoryResponseMapper categoryResponseMapper;
+
+    public CategoryRestControllerAdapter(ICategoryServicePort categoryServicePort,
+                                         ICategoryRequestMapper categoryRequestMapper,
+                                         ICategoryResponseMapper categoryResponseMapper) {
         this.categoryServicePort = categoryServicePort;
         this.categoryRequestMapper = categoryRequestMapper;
         this.categoryResponseMapper = categoryResponseMapper;
     }
 
-    private final ICategoryServicePort categoryServicePort;
-    private final ICategoryRequestMapper categoryRequestMapper;
-    private final ICategoryResponseMapper categoryResponseMapper;
-
-    @Operation(summary = "Añadir una nueva categoría")
-    @ApiResponse(responseCode = "201", description = "Categoría creada con éxito")
+    @Operation(summary = CategoryControllerConstants.CATEGORY_CREATED_SUMMARY)
+    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORY_SUCCESS_CODE,
+            description = CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY)
     @PostMapping("/")
-    public ResponseEntity<Void> addCategory(@RequestBody AddCategoryRequest request) {
+    public ResponseEntity<String> addCategory(@RequestBody AddCategoryRequest request) {
         categoryServicePort.saveCategory(categoryRequestMapper.addRequestToCategory(request));
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY);
     }
 
-    @Operation(summary = "Obtener todas las categorías con paginación")
-    @ApiResponse(responseCode = "200", description = "Categorías encontradas")
+    @Operation(summary = CategoryControllerConstants.CATEGORIES_PAGED_SUMMARY)
+    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORIES_FOUND_CODE,
+            description = CategoryControllerConstants.CATEGORIES_FOUND)
     @GetMapping("/paged")
     public ResponseEntity<PagedResult<CategoryResponse>> getPagedCategories(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size,
-            @RequestParam(value = "ascending", defaultValue = "true") boolean ascending) {
+            @RequestParam(value = CategoryControllerConstants.PARAM_PAGE,
+                    defaultValue = CategoryControllerConstants.DEFAULT_PAGE) Integer page,
+            @RequestParam(value = CategoryControllerConstants.PARAM_SIZE,
+                    defaultValue = CategoryControllerConstants.DEFAULT_SIZE) Integer size,
+            @RequestParam(value = CategoryControllerConstants.PARAM_SORT,
+                    defaultValue = CategoryControllerConstants.DEFAULT_SORT) String sort) {
+        boolean ascending = sort.equalsIgnoreCase(CategoryControllerConstants.SORT_ASCENDING);
+
         PagedResult<CategoryResponse> response = categoryResponseMapper.toCategoryResponsePagedResult(
                 categoryServicePort.getPagedCategories(page, size, ascending));
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = CategoryControllerConstants.CATEGORIES_UNPAGED_SUMMARY)
+    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORIES_FOUND_CODE,
+            description = CategoryControllerConstants.CATEGORIES_FOUND)
+    @GetMapping("/")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryResponseMapper.toCategoryResponseList(categoryServicePort.getAllCategories()));
     }
-
-
 }

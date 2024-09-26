@@ -67,14 +67,17 @@ class BrandRestControllerAdapterTest {
     @Test
     void addBrand_ShouldReturnBadRequest_WhenRequestIsInvalid() {
         // Arrange
-        AddBrandRequest invalidRequest = new AddBrandRequest("", "");
+        AddBrandRequest invalidRequest = new AddBrandRequest("", ""); // Solicitud inválida
+
+        // Simular que el mapeo de la solicitud a dominio también genera un error
+        when(brandRequestMapper.addRequestToBrand(invalidRequest)).thenThrow(new IllegalArgumentException("Invalid Brand Request"));
 
         // Act
         ResponseEntity<Void> response = brandRestControllerAdapter.addBrand(invalidRequest);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(brandServicePort, never()).saveBrand(any());
+        verify(brandServicePort, never()).saveBrand(any()); // Asegura que el servicio no se invocó
     }
 
     @Test

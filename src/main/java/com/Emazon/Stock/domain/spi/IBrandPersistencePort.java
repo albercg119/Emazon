@@ -8,7 +8,6 @@ import java.util.List;
 public interface IBrandPersistencePort {
     void saveBrand(Brand brand);
     boolean existsByName(String name);
-    boolean existsByNameExcludingId(String name, Long id);
     PagedResult<Brand> getPagedBrands(Integer page, Integer size, boolean ascending);
     List<Brand> getAllBrands();
 }

@@ -99,35 +99,7 @@ class CategoryAdapterTest {
         verify(categoryRepository, times(1)).findByNombre(categoryName);
     }
 
-    @Test
-    void testExistsByNameExcludingId_WhenCategoryExistsExcludingId_ShouldReturnTrue() {
-        // Arrange
-        String categoryName = "Electronics";
-        Long categoryId = 1L;
-        when(categoryRepository.existsByNombreExcludingId(categoryName, categoryId)).thenReturn(true);
 
-        // Act
-        boolean result = categoryAdapter.existsByNameExcludingId(categoryName, categoryId);
-
-        // Assert
-        assertTrue(result);
-        verify(categoryRepository, times(1)).existsByNombreExcludingId(categoryName, categoryId);
-    }
-
-    @Test
-    void testExistsByNameExcludingId_WhenCategoryDoesNotExistExcludingId_ShouldReturnFalse() {
-        // Arrange
-        String categoryName = "Electronics";
-        Long categoryId = 1L;
-        when(categoryRepository.existsByNombreExcludingId(categoryName, categoryId)).thenReturn(false);
-
-        // Act
-        boolean result = categoryAdapter.existsByNameExcludingId(categoryName, categoryId);
-
-        // Assert
-        assertFalse(result);
-        verify(categoryRepository, times(1)).existsByNombreExcludingId(categoryName, categoryId);
-    }
 
     @Test
     void testGetPagedCategories() {
