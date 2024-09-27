@@ -58,10 +58,11 @@ class CategoryRestControllerAdapterTest {
         when(categoryRequestMapper.addRequestToCategory(request)).thenReturn(domainCategory);
 
         // Act
-        ResponseEntity<Void> response = categoryRestControllerAdapter.addCategory(request);
+        ResponseEntity<String> response = categoryRestControllerAdapter.addCategory(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Category created successfully", response.getBody());
         verify(categoryServicePort, times(1)).saveCategory(domainCategory);
     }
 
@@ -70,7 +71,7 @@ class CategoryRestControllerAdapterTest {
         // Arrange
         int page = 0;
         int size = 10;
-        boolean ascending = true;
+        String sort = "asc"; // O "desc" dependiendo de lo que necesites
 
         Category category1 = new Category(1L, "Electronics", "Devices");
         Category category2 = new Category(2L, "Books", "Various books");
@@ -84,25 +85,25 @@ class CategoryRestControllerAdapterTest {
         List<CategoryResponse> categoryResponses = Arrays.asList(categoryResponse1, categoryResponse2);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(categoryResponses, page, size, 2, 1);
 
-        when(categoryServicePort.getPagedCategories(page, size, ascending)).thenReturn(pagedResult);
+        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult); // Considera pasar true o false basado en el valor de sort
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, sort);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true); // Verifica si el booleano es correcto basado en el sort
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
-
     @Test
     void getPagedCategories_ShouldReturnEmptyPagedResult_WhenNoCategoriesAvailable() {
         // Arrange
-        int page = 0;
-        int size = 10;
-        boolean ascending = true;
+        Integer page = 0;
+        Integer size = 10;
+        String order = "asc";  // Usar "asc" o "desc" según sea necesario
+        boolean ascending = order.equalsIgnoreCase("asc");  // Convertir a booleano
 
         PagedResult<Category> pagedResult = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
@@ -111,12 +112,12 @@ class CategoryRestControllerAdapterTest {
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, order);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);  // Usar el booleano aquí
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
 

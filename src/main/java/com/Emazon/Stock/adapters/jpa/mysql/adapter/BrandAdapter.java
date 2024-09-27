@@ -35,8 +35,5 @@ public class BrandAdapter implements IBrandPersistencePort {
         return brandRepository.findByNombre(name).isPresent();
     }
 
-    @Override
-    public boolean existsByNameExcludingId(String nombre, Long id) {
-        return brandRepository.existsByNombreExcludingId(nombre, id);
-    }
+
 }

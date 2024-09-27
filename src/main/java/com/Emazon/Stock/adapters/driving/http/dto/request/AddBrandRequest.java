@@ -1,16 +1,17 @@
 package com.Emazon.Stock.adapters.driving.http.dto.request;
 
+import com.Emazon.Stock.adapters.utilities.AddBrandRequestConstants;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 public class AddBrandRequest {
 
-    @NotBlank(message = "El nombre de la marca es obligatorio.")
-    @Size(max = 50, message = "El nombre de la marca no puede exceder los 50 caracteres.")
+    @NotBlank(message = AddBrandRequestConstants.BRAND_NAME_REQUIRED)
+    @Size(max = 50, message = AddBrandRequestConstants.BRAND_NAME_MAX_SIZE)
     private final String name;
 
-    @NotBlank(message = "La descripción de la marca es obligatoria.")
-    @Size(max = 120, message = "La descripción no puede exceder los 120 caracteres.")
+    @NotBlank(message = AddBrandRequestConstants.BRAND_DESCRIPTION_REQUIRED)
+    @Size(max = 120, message = AddBrandRequestConstants.BRAND_DESCRIPTION_MAX_SIZE)
     private final String description;
 
     public String getName() {

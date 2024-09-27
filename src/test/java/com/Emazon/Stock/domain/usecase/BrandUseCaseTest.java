@@ -89,7 +89,7 @@ class BrandUseCaseTest {
     @Test
     void saveBrand_ShouldThrowException_WhenBrandNameExceedsMaxLength() {
         // Arrange
-        String longName = "ThisBrandNameIsDefinitelyLongerThanFiftyCharacters";
+        String longName = "ThisBrandNameIsDefinitelyLongerThanFiftyCharacters!";
         Brand brandWithLongName = new Brand(1L, longName, "Valid description");
 
         // Act & Assert
@@ -100,7 +100,7 @@ class BrandUseCaseTest {
     @Test
     void saveBrand_ShouldThrowException_WhenBrandDescriptionExceedsMaxLength() {
         // Arrange
-        String longDescription = "This description is definitely longer than one hundred and twenty characters. It's far too long for our current model!";
+        String longDescription = "This description is definitely longer than one hundred and twenty characters. It's far too long for our current model!!!!!";
         Brand brandWithLongDescription = new Brand(1L, "Sony", longDescription);
 
         // Act & Assert

@@ -1,5 +1,7 @@
 package com.Emazon.Stock.domain.usecase;
 
+import com.Emazon.Stock.domain.utilities.constants.BrandUseCaseConstants;
+import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.spi.IBrandPersistencePort;
@@ -19,36 +21,29 @@ public class BrandUseCase implements IBrandServicePort {
         brandPersistencePort.saveBrand(brand);
     }
 
-
-
     private void validateBrand(Brand brand) {
         if (brand == null) {
-            throw new IllegalArgumentException("Brand cannot be null");
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NULL_ERROR);
         }
         if (brand.getNombre() == null || brand.getNombre().isEmpty()) {
-            throw new IllegalArgumentException("Brand name cannot be null or empty");
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_NULL_OR_EMPTY_ERROR);
         }
         if (brand.getNombre().length() > 50) {
-            throw new IllegalArgumentException("Brand name cannot exceed 50 characters");
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_LENGTH_ERROR);
         }
         if (brand.getDescripcion() == null || brand.getDescripcion().isEmpty()) {
-            throw new IllegalArgumentException("Brand description cannot be null or empty");
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_NULL_OR_EMPTY_ERROR);
         }
         if (brand.getDescripcion().length() > 120) {
-            throw new IllegalArgumentException("Brand description cannot exceed 120 characters");
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_LENGTH_ERROR);
         }
     }
 
     private void checkIfNameIsUnique(String nombre, Long id) {
-        boolean exists;
-        if (id == null) {
-            exists = brandPersistencePort.existsByName(nombre);
-        } else {
-            exists = brandPersistencePort.existsByNameExcludingId(nombre, id);
-        }
+        boolean exists = brandPersistencePort.existsByName(nombre);
 
         if (exists) {
-            throw new IllegalArgumentException("Brand name must be unique");
+            throw new BrandAlreadyExistsDomainException(BrandUseCaseConstants.BRAND_ALREADY_EXISTS_ERROR);
         }
     }
 }

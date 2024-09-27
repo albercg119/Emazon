@@ -1,5 +1,6 @@
 package com.Emazon.Stock.adapters.driving.http.controller;
 
+import com.Emazon.Stock.adapters.utilities.BrandControllerConstants;
 import com.Emazon.Stock.adapters.driving.http.dto.request.AddBrandRequest;
 import com.Emazon.Stock.adapters.driving.http.mapper.IBrandRequestMapper;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
@@ -48,10 +49,11 @@ class BrandRestControllerAdapterTest {
         when(brandRequestMapper.addRequestToBrand(request)).thenReturn(domainBrand);
 
         // Act
-        ResponseEntity<Void> response = brandRestControllerAdapter.addBrand(request);
+        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(BrandControllerConstants.BRAND_CREATED_MESSAGE, response.getBody());
         verify(brandServicePort, times(1)).saveBrand(domainBrand);
     }
 
@@ -61,7 +63,7 @@ class BrandRestControllerAdapterTest {
         AddBrandRequest invalidRequest = new AddBrandRequest("", "");
 
         // Act
-        ResponseEntity<Void> response = brandRestControllerAdapter.addBrand(invalidRequest);
+        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(invalidRequest);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

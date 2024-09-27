@@ -93,7 +93,7 @@ class CategoryUseCaseTest {
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameExceedsMaxLength() {
         // Arrange
-        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters";
+        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters!";
         Category categoryWithLongName = new Category(1L, longName, "Valid description");
 
         // Act & Assert
@@ -104,7 +104,7 @@ class CategoryUseCaseTest {
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryDescriptionExceedsMaxLength() {
         // Arrange
-        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!";
+        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!!!!!";
         Category categoryWithLongDescription = new Category(1L, "Electronics", longDescription);
 
         // Act & Assert

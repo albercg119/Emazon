@@ -93,33 +93,4 @@ class BrandAdapterTest {
         verify(brandRepository, times(1)).findByNombre(brandName);
     }
 
-    @Test
-    void testExistsByNameExcludingId_WhenBrandExistsExcludingId_ShouldReturnTrue() {
-        // Arrange
-        String brandName = "Apple";
-        Long brandId = 1L;
-        when(brandRepository.existsByNombreExcludingId(brandName, brandId)).thenReturn(true);
-
-        // Act
-        boolean result = brandAdapter.existsByNameExcludingId(brandName, brandId);
-
-        // Assert
-        assertTrue(result);
-        verify(brandRepository, times(1)).existsByNombreExcludingId(brandName, brandId);
-    }
-
-    @Test
-    void testExistsByNameExcludingId_WhenBrandDoesNotExistExcludingId_ShouldReturnFalse() {
-        // Arrange
-        String brandName = "Apple";
-        Long brandId = 1L;
-        when(brandRepository.existsByNombreExcludingId(brandName, brandId)).thenReturn(false);
-
-        // Act
-        boolean result = brandAdapter.existsByNameExcludingId(brandName, brandId);
-
-        // Assert
-        assertFalse(result);
-        verify(brandRepository, times(1)).existsByNombreExcludingId(brandName, brandId);
-    }
 }

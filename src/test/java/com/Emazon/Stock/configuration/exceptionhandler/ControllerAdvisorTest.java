@@ -1,7 +1,6 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
-
-import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
+import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;  // Asegúrate de importar Map
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -51,17 +51,18 @@ class ControllerAdvisorTest {
     }
 
     @Test
-    void handleCategoryAlreadyExistsException_shouldReturnBadRequest() {
-        // Simular la excepción sin mensaje personalizado
-        CategoryAlreadyExistsException exception = new CategoryAlreadyExistsException();
+    void handleCategoryAlreadyExistsDomainException_shouldReturnConflict() {
+        // Simular la excepción con un mensaje personalizado
+        String message = "Category already exists";
+        CategoryAlreadyExistsDomainException exception = new CategoryAlreadyExistsDomainException(message);
 
         // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleCategoryAlreadyExistsException(exception);
+        ResponseEntity<Map<String, String>> response = controllerAdvisor.handleCategoryAlreadyExists(exception);
 
-        // Validar que se devuelve el estado 400 y el mensaje por defecto
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("Category already exists", response.getBody().getMessage());
+        // Validar que se devuelve el estado 409 y el mensaje correcto
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("409 CONFLICT", response.getBody().get("status"));
+        assertEquals(message, response.getBody().get("message"));
     }
 
     @Test
