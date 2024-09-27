@@ -5,6 +5,7 @@ import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.Exceptions.ArticleAlreadyExistsDomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,16 @@ public class ControllerAdvisor {
         response.put(Constants.RESPONSE_MESSAGE_KEY, ex.getMessage());
         response.put(Constants.RESPONSE_STATUS_KEY, Constants.STATUS_CONFLICT);
         response.put(Constants.RESPONSE_TIMESTAMP_KEY, LocalDateTime.now().toString());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(ArticleAlreadyExistsDomainException.class)
+    public ResponseEntity<Map<String, String>> handleArticleAlreadyExists(ArticleAlreadyExistsDomainException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("status", "409 CONFLICT");
+        response.put("timestamp", LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }

@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,27 +59,30 @@ class BrandRestControllerAdapterTest {
         when(brandRequestMapper.addRequestToBrand(request)).thenReturn(domainBrand);
 
         // Act
-        ResponseEntity<Void> response = brandRestControllerAdapter.addBrand(request);
+        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Brand created successfully", response.getBody());
         verify(brandServicePort, times(1)).saveBrand(domainBrand);
     }
 
     @Test
     void addBrand_ShouldReturnBadRequest_WhenRequestIsInvalid() {
         // Arrange
-        AddBrandRequest invalidRequest = new AddBrandRequest("", ""); // Solicitud inválida
+        AddBrandRequest invalidRequest = new AddBrandRequest("", "");
 
-        // Simular que el mapeo de la solicitud a dominio también genera un error
+
         when(brandRequestMapper.addRequestToBrand(invalidRequest)).thenThrow(new IllegalArgumentException("Invalid Brand Request"));
 
         // Act
-        ResponseEntity<Void> response = brandRestControllerAdapter.addBrand(invalidRequest);
+        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(invalidRequest);
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(brandServicePort, never()).saveBrand(any()); // Asegura que el servicio no se invocó
+        assertNull(response.getBody());
+
+        verify(brandServicePort, never()).saveBrand(any());
     }
 
     @Test
@@ -106,14 +111,17 @@ class BrandRestControllerAdapterTest {
     @Test
     void getPagedBrands_ShouldReturnPagedResult_WhenBrandsExist() {
         // Arrange
-        PagedResult<Brand> pagedResult = new PagedResult<>(Arrays.asList(new Brand(1L, "Apple", "Tech company")), 1, 0, 1, 1);
-        PagedResult<BrandResponse> brandResponsePagedResult = new PagedResult<>(Arrays.asList(new BrandResponse(1L, "Apple", "Tech company")), 1, 0, 1, 1);
+        PagedResult<Brand> pagedResult = new PagedResult<>(Arrays.asList(new Brand(
+                1L, "Apple", "Tech company")), 1, 0, 1, 1);
+        PagedResult<BrandResponse> brandResponsePagedResult = new PagedResult<>(Arrays.asList(
+                new BrandResponse(1L, "Apple", "Tech company")), 1, 0, 1, 1);
 
+        // Simulamos el resultado del servicio utilizando "asc" como criterio de ordenación
         when(brandServicePort.getPagedBrands(0, 10, true)).thenReturn(pagedResult);
         when(brandResponseMapper.toBrandResponsePagedResult(pagedResult)).thenReturn(brandResponsePagedResult);
 
         // Act
-        ResponseEntity<PagedResult<BrandResponse>> response = brandRestControllerAdapter.getPagedBrands(0, 10, true);
+        ResponseEntity<PagedResult<BrandResponse>> response = brandRestControllerAdapter.getPagedBrands(0, 10, "asc");
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -57,24 +57,6 @@ class IBrandRepositoryTest {
     }
 
     @Test
-    void testExistsByNombreExcludingId_True() {
-        // Act: verificar si el nombre "Apple" existe excluyendo el ID de la marca 1
-        boolean exists = brandRepository.existsByNombreExcludingId("Apple", brandEntity1.getId());
-
-        // Assert
-        assertTrue(exists);
-    }
-
-    @Test
-    void testExistsByNombreExcludingId_False() {
-        // Act: verificar si el nombre "Samsung" existe excluyendo su propio ID
-        boolean exists = brandRepository.existsByNombreExcludingId("Samsung", brandEntity1.getId());
-
-        // Assert
-        assertFalse(exists);
-    }
-
-    @Test
     void testSaveBrandWithExistingName() {
         // Arrange: crear una nueva marca con un nombre duplicado
         BrandEntity duplicateBrand = new BrandEntity();

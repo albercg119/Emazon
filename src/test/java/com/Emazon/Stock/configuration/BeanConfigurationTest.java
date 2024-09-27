@@ -4,8 +4,10 @@ import com.Emazon.Stock.adapters.jpa.mysql.adapter.BrandAdapter;
 import com.Emazon.Stock.adapters.jpa.mysql.adapter.CategoryAdapter;
 import com.Emazon.Stock.adapters.jpa.mysql.mapper.IBrandEntityMapper;
 import com.Emazon.Stock.adapters.jpa.mysql.mapper.ICategoryEntityMapper;
+import com.Emazon.Stock.adapters.jpa.mysql.mapper.IArticleEntityMapper;
 import com.Emazon.Stock.adapters.jpa.mysql.repository.IBrandRepository;
 import com.Emazon.Stock.adapters.jpa.mysql.repository.ICategoryRepository;
+import com.Emazon.Stock.adapters.jpa.mysql.repository.IArticleRepository;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import com.Emazon.Stock.domain.spi.IBrandPersistencePort;
@@ -27,6 +29,11 @@ class BeanConfigurationTest {
 
     @Mock
     private ICategoryRepository categoryRepository;
+    @Mock
+    private IArticleRepository articleRepository;
+
+    @Mock
+    private IArticleEntityMapper articleEntityMapper;
 
     @Mock
     private ICategoryEntityMapper categoryEntityMapper;
@@ -42,7 +49,8 @@ class BeanConfigurationTest {
 
     @BeforeEach
     void setUp() {
-        beanConfiguration = new BeanConfiguration(categoryRepository, categoryEntityMapper, brandRepository, brandEntityMapper);
+        beanConfiguration = new BeanConfiguration(
+                categoryRepository, categoryEntityMapper, brandRepository, brandEntityMapper, articleRepository, articleEntityMapper);
     }
 
     @Test

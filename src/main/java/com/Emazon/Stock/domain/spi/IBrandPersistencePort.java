@@ -10,4 +10,5 @@ public interface IBrandPersistencePort {
     boolean existsByName(String name);
     PagedResult<Brand> getPagedBrands(Integer page, Integer size, boolean ascending);
     List<Brand> getAllBrands();
+    Brand getBrandById(Long id);
 }

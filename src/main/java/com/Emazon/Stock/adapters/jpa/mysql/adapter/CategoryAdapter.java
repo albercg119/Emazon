@@ -65,4 +65,11 @@ public class CategoryAdapter implements ICategoryPersistencePort {
         this.categoryRepository = categoryRepository;
         this.categoryEntityMapper = categoryEntityMapper;
     }
+
+    @Override
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .map(categoryEntityMapper::toModel)
+                .orElseThrow(() -> new NoDataFoundException(CategoryAdapterConstants.CATEGORY_NOT_FOUND_MESSAGE + id));
+    }
 }

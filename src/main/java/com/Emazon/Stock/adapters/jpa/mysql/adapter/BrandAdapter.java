@@ -65,4 +65,11 @@ public class BrandAdapter implements IBrandPersistencePort {
         return brandRepository.findByNombre(name).isPresent();
 
     }
+
+    @Override
+    public Brand getBrandById(Long id) {
+        return brandRepository.findById(id)
+                .map(brandEntityMapper::toModel)
+                .orElseThrow(() -> new NoDataFoundException(BrandAdapterConstants.BRAND_NOT_FOUND_MESSAGE + id));
+    }
 }

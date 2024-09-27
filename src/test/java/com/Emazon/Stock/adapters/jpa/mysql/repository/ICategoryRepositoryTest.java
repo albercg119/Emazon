@@ -58,24 +58,6 @@ class ICategoryRepositoryTest {
     }
 
     @Test
-    void testExistsByNombreExcludingId_True() {
-        // Act: verificar si el nombre "Furniture" existe excluyendo el ID de la categoría 1
-        boolean exists = categoryRepository.existsByNombreExcludingId("Furniture", categoryEntity1.getId());
-
-        // Assert
-        assertTrue(exists);
-    }
-
-    @Test
-    void testExistsByNombreExcludingId_False() {
-        // Act: verificar si el nombre "Electronics" existe excluyendo su propio ID
-        boolean exists = categoryRepository.existsByNombreExcludingId("Electronics", categoryEntity1.getId());
-
-        // Assert
-        assertFalse(exists);
-    }
-
-    @Test
     void testSaveCategoryWithExistingName() {
         // Arrange: crear una nueva categoría con un nombre duplicado
         CategoryEntity duplicateCategory = new CategoryEntity();

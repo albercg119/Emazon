@@ -34,6 +34,11 @@ public class CategoryUseCase implements ICategoryServicePort {
         return categoryPersistencePort.getPagedCategories(page, size, ascending);
     }
 
+    @Override
+    public Category getCategoryById(Long id) {
+        return categoryPersistencePort.getCategoryById(id);
+    }
+
     private void validateCategory(Category category) {
         if (category == null) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NULL_EXCEPTION_MESSAGE);

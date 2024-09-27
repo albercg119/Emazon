@@ -9,4 +9,5 @@ public interface IBrandServicePort {
     void saveBrand(Brand brand);
     PagedResult<Brand> getPagedBrands(Integer page, Integer size, boolean ascending);
     List<Brand> getAllBrands();
+    Brand getBrandById(Long id);
 }

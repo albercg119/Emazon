@@ -9,5 +9,6 @@ public interface ICategoryServicePort {
     void saveCategory(Category category);
     List<Category> getAllCategories();
     PagedResult<Category> getPagedCategories(Integer page, Integer size, boolean ascending);
+    Category getCategoryById(Long id);
 }
 

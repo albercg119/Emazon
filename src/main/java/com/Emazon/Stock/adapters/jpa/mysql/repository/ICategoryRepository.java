@@ -9,6 +9,5 @@ import java.util.Optional;
 
 public interface ICategoryRepository extends JpaRepository<CategoryEntity, Long> {
     Optional<CategoryEntity> findByNombre(String nombre);
-    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM CategoryEntity c WHERE LOWER(c.nombre) = LOWER(:nombre) AND c.id != :id")
-    boolean existsByNombreExcludingId(@Param("nombre") String nombre, @Param("id") Long id);
+
 }

@@ -30,6 +30,11 @@ public class BrandUseCase implements IBrandServicePort {
     }
 
     @Override
+    public Brand getBrandById(Long id) {
+        return brandPersistencePort.getBrandById(id);
+    }
+
+    @Override
     public List<Brand> getAllBrands() {
         return brandPersistencePort.getAllBrands();
     }

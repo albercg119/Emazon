@@ -30,7 +30,7 @@ public class BrandRestControllerAdapter {
     @ApiResponse(responseCode = BrandControllerConstants.BRAND_SUCCESS_CODE,
             description = BrandControllerConstants.BRAND_CREATED_SUCCESSFULLY)
     @PostMapping("/")
-    public ResponseEntity<String> addBrand(@Valid @RequestBody AddBrandRequest request) {
+    public ResponseEntity<String> addBrand(@Valid @RequestBody  AddBrandRequest request) {
         brandServicePort.saveBrand(brandRequestMapper.addRequestToBrand(request));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(BrandControllerConstants.BRAND_CREATED_SUCCESSFULLY);
@@ -56,9 +56,6 @@ public class BrandRestControllerAdapter {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = BrandControllerConstants.BRANDS_UNPAGED_SUMMARY)
-    @ApiResponse(responseCode = BrandControllerConstants.BRANDS_FOUND_CODE,
-            description = BrandControllerConstants.BRANDS_FOUND)
     @GetMapping("/")
     public ResponseEntity<List<BrandResponse>> getAllBrands() {
         return ResponseEntity.ok(brandResponseMapper.toBrandResponseList(brandServicePort.getAllBrands()));

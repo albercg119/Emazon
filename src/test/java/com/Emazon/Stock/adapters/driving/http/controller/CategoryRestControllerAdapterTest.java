@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 class CategoryRestControllerAdapterTest {
@@ -58,11 +59,29 @@ class CategoryRestControllerAdapterTest {
         when(categoryRequestMapper.addRequestToCategory(request)).thenReturn(domainCategory);
 
         // Act
-        ResponseEntity<Void> response = categoryRestControllerAdapter.addCategory(request);
+        ResponseEntity<String> response = categoryRestControllerAdapter.addCategory(request); // Cambiado de Void a String
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Category created successfully", response.getBody()); // Verifica el mensaje correcto
         verify(categoryServicePort, times(1)).saveCategory(domainCategory);
+    }
+
+    @Test
+    void addCategory_ShouldReturnBadRequest_WhenRequestIsInvalid() {
+        // Arrange
+        AddCategoryRequest invalidRequest = new AddCategoryRequest("", ""); // Solicitud inválida
+
+        // Simular que el mapeo de la solicitud a dominio también genera un error
+        when(categoryRequestMapper.addRequestToCategory(invalidRequest)).thenThrow(new IllegalArgumentException("Invalid Category Request"));
+
+        // Act
+        ResponseEntity<String> response = categoryRestControllerAdapter.addCategory(invalidRequest); // Cambiado de Void a String
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody()); // En caso de error, el cuerpo debe ser nulo
+        verify(categoryServicePort, never()).saveCategory(any());
     }
 
     @Test
@@ -70,7 +89,7 @@ class CategoryRestControllerAdapterTest {
         // Arrange
         int page = 0;
         int size = 10;
-        boolean ascending = true;
+        String sort = "asc"; // Usar 'asc' en lugar de booleano
 
         Category category1 = new Category(1L, "Electronics", "Devices");
         Category category2 = new Category(2L, "Books", "Various books");
@@ -84,16 +103,16 @@ class CategoryRestControllerAdapterTest {
         List<CategoryResponse> categoryResponses = Arrays.asList(categoryResponse1, categoryResponse2);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(categoryResponses, page, size, 2, 1);
 
-        when(categoryServicePort.getPagedCategories(page, size, ascending)).thenReturn(pagedResult);
+        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult); // Se mantiene el booleano en el servicio
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, sort);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true);
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
 
@@ -102,21 +121,21 @@ class CategoryRestControllerAdapterTest {
         // Arrange
         int page = 0;
         int size = 10;
-        boolean ascending = true;
+        String sort = "asc"; // Usar 'asc' en lugar de booleano
 
         PagedResult<Category> pagedResult = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
 
-        when(categoryServicePort.getPagedCategories(page, size, ascending)).thenReturn(pagedResult);
+        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult); // Se mantiene el booleano en el servicio
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, sort);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true);
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
 
