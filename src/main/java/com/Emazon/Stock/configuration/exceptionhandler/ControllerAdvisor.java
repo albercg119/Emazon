@@ -1,6 +1,6 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
-import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
+import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +31,14 @@ public class ControllerAdvisor {
                 LocalDateTime.now()));
     }
 
-    @ExceptionHandler(CategoryAlreadyExistsException.class)
-    public ResponseEntity<ExceptionResponse> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex) {
-        ExceptionResponse response = new ExceptionResponse(
-                ex.getMessage(),
-                HttpStatus.BAD_REQUEST.toString(),
-                LocalDateTime.now());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(CategoryAlreadyExistsDomainException.class)
+    public ResponseEntity<Map<String, String>> handleCategoryAlreadyExists(CategoryAlreadyExistsDomainException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("status", "409 CONFLICT");
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(NoDataFoundException.class)

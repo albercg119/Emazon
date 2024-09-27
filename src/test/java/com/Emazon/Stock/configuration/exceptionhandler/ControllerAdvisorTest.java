@@ -1,7 +1,7 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
 
-import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
+import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,18 +51,19 @@ class ControllerAdvisorTest {
     }
 
     @Test
-    void handleCategoryAlreadyExistsException_shouldReturnBadRequest() {
-        // Simular la excepción sin mensaje personalizado
-        CategoryAlreadyExistsException exception = new CategoryAlreadyExistsException();
+    void handleCategoryAlreadyExistsException_shouldReturnConflict() {
+        // Simular la excepción CategoryAlreadyExistsDomainException
+        CategoryAlreadyExistsDomainException exception = new CategoryAlreadyExistsDomainException("Category already exists");
 
         // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleCategoryAlreadyExistsException(exception);
+        ResponseEntity<Map<String, String>> response = controllerAdvisor.handleCategoryAlreadyExists(exception);
 
-        // Validar que se devuelve el estado 400 y el mensaje por defecto
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("Category already exists", response.getBody().getMessage());
+        // Validar que se devuelve el estado 409 y el mensaje por defecto
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("409 CONFLICT", response.getBody().get("status"));
+        assertEquals("Category already exists", response.getBody().get("message"));
     }
+
 
     @Test
     void handleNoDataFoundException_shouldReturnNotFound() {

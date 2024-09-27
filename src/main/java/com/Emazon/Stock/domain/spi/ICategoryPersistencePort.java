@@ -10,5 +10,5 @@ public interface ICategoryPersistencePort {
     PagedResult<Category> getPagedCategories(Integer page, Integer size, boolean ascending);
     List<Category> getAllCategories();
     boolean existsByName(String name);
-    boolean existsByNameExcludingId(String nombre, Long id);
+
 }

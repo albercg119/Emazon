@@ -1,5 +1,6 @@
 package com.Emazon.Stock.adapters.jpa.mysql.adapter;
 
+import com.Emazon.Stock.adapters.utilities.CategoryAdapterConstants;
 import com.Emazon.Stock.adapters.jpa.mysql.adapter.entity.CategoryEntity;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
@@ -30,7 +31,8 @@ public class CategoryAdapter implements ICategoryPersistencePort {
 
     @Override
     public PagedResult<Category> getPagedCategories(Integer page, Integer size, boolean ascending) {
-        Sort sort = ascending ? Sort.by("nombre").ascending() : Sort.by("nombre").descending();
+        Sort sort = ascending ? Sort.by(CategoryAdapterConstants.NAME_FIELD).ascending()
+                : Sort.by(CategoryAdapterConstants.NAME_FIELD).descending();
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         Page<CategoryEntity> categoryPage = categoryRepository.findAll(pageRequest);
 
@@ -61,10 +63,5 @@ public class CategoryAdapter implements ICategoryPersistencePort {
     public CategoryAdapter(ICategoryRepository categoryRepository, ICategoryEntityMapper categoryEntityMapper) {
         this.categoryRepository = categoryRepository;
         this.categoryEntityMapper = categoryEntityMapper;
-    }
-
-    @Override
-    public boolean existsByNameExcludingId(String nombre, Long id) {
-        return categoryRepository.existsByNombreExcludingId(nombre, id);
     }
 }

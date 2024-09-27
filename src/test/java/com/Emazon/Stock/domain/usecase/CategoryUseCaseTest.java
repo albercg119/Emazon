@@ -1,5 +1,6 @@
 package com.Emazon.Stock.domain.usecase;
 
+import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.model.Category;
 import com.Emazon.Stock.domain.spi.ICategoryPersistencePort;
 import com.Emazon.Stock.domain.utilities.PagedResult;
@@ -93,7 +94,7 @@ class CategoryUseCaseTest {
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameExceedsMaxLength() {
         // Arrange
-        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters";
+        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters!";
         Category categoryWithLongName = new Category(1L, longName, "Valid description");
 
         // Act & Assert
@@ -104,7 +105,7 @@ class CategoryUseCaseTest {
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryDescriptionExceedsMaxLength() {
         // Arrange
-        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!";
+        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!!!!!";
         Category categoryWithLongDescription = new Category(1L, "Electronics", longDescription);
 
         // Act & Assert
@@ -117,16 +118,13 @@ class CategoryUseCaseTest {
         // Arrange
         Category categoryWithNonUniqueName = new Category(null, "Electronics", "Valid description");
 
-
         when(categoryPersistencePort.existsByName("Electronics")).thenReturn(true);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        CategoryAlreadyExistsDomainException exception = assertThrows(CategoryAlreadyExistsDomainException.class,
                 () -> categoryUseCase.saveCategory(categoryWithNonUniqueName));
 
-
         assertEquals("Category name must be unique", exception.getMessage());
-
 
         verify(categoryPersistencePort, times(1)).existsByName("Electronics");
     }

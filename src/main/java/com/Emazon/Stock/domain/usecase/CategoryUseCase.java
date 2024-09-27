@@ -4,6 +4,8 @@ import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import com.Emazon.Stock.domain.model.Category;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 import com.Emazon.Stock.domain.spi.ICategoryPersistencePort;
+import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.constants.CategoryUseCaseConstants;
 
 import java.util.List;
 
@@ -32,35 +34,29 @@ public class CategoryUseCase implements ICategoryServicePort {
         return categoryPersistencePort.getPagedCategories(page, size, ascending);
     }
 
-
     private void validateCategory(Category category) {
         if (category == null) {
-            throw new IllegalArgumentException("Category cannot be null");
+            throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NULL_EXCEPTION_MESSAGE);
         }
         if (category.getNombre() == null || category.getNombre().isEmpty()) {
-            throw new IllegalArgumentException("Category name cannot be null or empty");
+            throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_NULL_OR_EMPTY_MESSAGE);
         }
         if (category.getNombre().length() > 50) {
-            throw new IllegalArgumentException("Category name cannot exceed 50 characters");
+            throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_LENGTH_MESSAGE);
         }
         if (category.getDescripcion() == null || category.getDescripcion().isEmpty()) {
-            throw new IllegalArgumentException("Category description cannot be null or empty");
+            throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_NULL_OR_EMPTY_MESSAGE);
         }
         if (category.getDescripcion().length() > 90) {
-            throw new IllegalArgumentException("Category description cannot exceed 90 characters");
+            throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_LENGTH_MESSAGE);
         }
     }
 
     private void checkIfNameIsUnique(String nombre, Long id) {
-        boolean exists;
-        if (id == null) {
-            exists = categoryPersistencePort.existsByName(nombre);
-        } else {
-            exists = categoryPersistencePort.existsByNameExcludingId(nombre, id);
-        }
+        boolean exists = categoryPersistencePort.existsByName(nombre);
 
         if (exists) {
-            throw new IllegalArgumentException("Category name must be unique");
+            throw new CategoryAlreadyExistsDomainException(CategoryUseCaseConstants.CATEGORY_ALREADY_EXISTS_MESSAGE);
         }
     }
 }
