@@ -30,8 +30,5 @@ public class CategoryAdapter implements ICategoryPersistencePort {
         this.categoryEntityMapper = categoryEntityMapper;
     }
 
-    @Override
-    public boolean existsByNameExcludingId(String nombre, Long id) {
-        return categoryRepository.existsByNombreExcludingId(nombre, id);
-    }
+
 }

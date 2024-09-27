@@ -37,18 +37,16 @@ class CategoryRestControllerAdapterTest implements AutoCloseable {
     void addCategory_ShouldReturnCreatedStatus_WhenCategoryIsValid() {
         // Arrange
         AddCategoryRequest request = new AddCategoryRequest("Electronics", "Devices and gadgets");
-
-        // Asumimos que el constructor de Category necesita un id (Long), nombre y descripción
         Category domainCategory = new Category(1L, "Electronics", "Devices and gadgets");
 
-        // Mocks
         when(categoryRequestMapper.addRequestToCategory(request)).thenReturn(domainCategory);
 
         // Act
-        ResponseEntity<Void> response = categoryRestControllerAdapter.addCategory(request);
+        ResponseEntity<String> response = categoryRestControllerAdapter.addCategory(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Category created successfully", response.getBody());
         verify(categoryServicePort, times(1)).saveCategory(domainCategory);
     }
 

@@ -1,33 +1,45 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
-
-import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
+import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import com.Emazon.Stock.domain.model.Category;
+import com.Emazon.Stock.domain.spi.ICategoryPersistencePort;
+import com.Emazon.Stock.domain.usecase.CategoryUseCase;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(MockitoExtension.class)
 class ControllerAdvisorTest {
+
+    @Mock
+    private ICategoryPersistencePort categoryPersistencePort;
+
+    @Mock
+    private CategoryUseCase categoryUseCase;
 
     @InjectMocks
     private ControllerAdvisor controllerAdvisor;
 
     @BeforeEach
     void setUp() {
-        controllerAdvisor = new ControllerAdvisor();
+        // No es necesario reinicializar `controllerAdvisor`, ya que la anotación @InjectMocks se encarga de ello
     }
 
     @Test
@@ -51,17 +63,19 @@ class ControllerAdvisorTest {
     }
 
     @Test
-    void handleCategoryAlreadyExistsException_shouldReturnBadRequest() {
-        // Simular la excepción sin mensaje personalizado
-        CategoryAlreadyExistsException exception = new CategoryAlreadyExistsException();
+    void saveCategory_ShouldThrowException_WhenCategoryNameIsNotUnique() {
+        // Arrange
+        Category categoryWithNonUniqueName = new Category(null, "Electronics", "Valid description");
 
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleCategoryAlreadyExistsException(exception);
+        when(categoryPersistencePort.existsByName("Electronics")).thenReturn(true);
 
-        // Validar que se devuelve el estado 400 y el mensaje por defecto
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("Category already exists", response.getBody().getMessage());
+        // Act & Assert
+        CategoryAlreadyExistsDomainException exception = assertThrows(CategoryAlreadyExistsDomainException.class,
+                () -> categoryUseCase.saveCategory(categoryWithNonUniqueName));
+
+        assertEquals("Category name must be unique", exception.getMessage());
+
+        verify(categoryPersistencePort, times(1)).existsByName("Electronics");
     }
 
     @Test

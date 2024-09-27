@@ -1,19 +1,20 @@
 package com.Emazon.Stock.adapters.driving.http.dto.request;
 
-
+import com.Emazon.Stock.adapters.utilities.AddCategoryRequestConstants;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 
 public class AddCategoryRequest {
 
-    @NotBlank(message = "El nombre de la categoría es obligatorio.")
-    @Size(max = 50, message = "El nombre de la categoría no puede exceder los 50 caracteres.")
+    @NotBlank(message = AddCategoryRequestConstants.CATEGORY_NAME_REQUIRED)
+    @Size(max = 50, message = AddCategoryRequestConstants.CATEGORY_NAME_MAX_SIZE)
     private final String name;
 
-    @NotBlank(message = "La descripción de la categoría es obligatoria.")
-    @Size(max = 90, message = "La descripción no puede exceder los 90 caracteres.")
+    @NotBlank(message = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_REQUIRED)
+    @Size(max = 90, message = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_MAX_SIZE)
     private final String description;
+
 
     public String getName() {
         return name;
