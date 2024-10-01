@@ -23,3 +23,17 @@ Tsrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/adapter/entity/CategoryEntity
 Usrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/repository/ICategoryRepository.java,4\f\4f4dc04b04c69d2c13d1ec75c4eb893f04805a2a
 w
 Gsrc/main/java/com/Emazon/Stock/domain/spi/ICategoryPersistencePort.java,1\c\1cc394fd23d63c465023dec8f662fdfa7c174431
+á
+Wsrc/main/java/com/Emazon/Stock/adapters/driving/http/dto/request/AddArticleRequest.java,5\8\58b2ed2df22c76154d258a57946b62d45d756de4
+ë
+asrc/main/java/com/Emazon/Stock/adapters/driving/http/controller/ArticleRestControllerAdapter.java,c\2\c2d0a4b5b4c8f248a8633e36231c60754771af24
+Å
+Qsrc/main/java/com/Emazon/Stock/adapters/utilities/AddArticleRequestConstants.java,8\d\8dd301db2b6c1228304bf989cde496250e35e1e1
+Å
+Qsrc/main/java/com/Emazon/Stock/adapters/utilities/ArticleControllerConstants.java,2\6\26e09828a99202f2828ab31359787df3d1d756f9
+}
+Msrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/adapter/ArticleAdapter.java,0\a\0a4a85d5052b53cc9ed073a7222c6491715ce824
+q
+Asrc/main/java/com/Emazon/Stock/domain/usecase/ArticleUseCase.java,0\b\0b18881c3ee794602cd796b1e5d4d3e5d2788337
+{
+Ksrc/main/java/com/Emazon/Stock/adapters/jpa/mysql/adapter/BrandAdapter.java,3\4\34670ca1e654fe47c1370d89f02b95847f1631ae

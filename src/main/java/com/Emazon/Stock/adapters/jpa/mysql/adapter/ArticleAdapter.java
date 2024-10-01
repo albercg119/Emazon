@@ -29,5 +29,23 @@ public class ArticleAdapter implements IArticlePersistencePort {
         return articleRepository.findByNombre(name).isPresent();
     }
 
-    
+    @Override
+    public PagedResult<Article> getPagedArticles(Integer page, Integer size, String sortBy, boolean ascending) {
+        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<ArticleEntity> articlePage = articleRepository.findAll(pageRequest);
+
+        if (articlePage.isEmpty()) {
+            throw new NoDataFoundException();
+        }
+
+        List<Article> articles = articleEntityMapper.toModelList(articlePage.getContent());
+        return new PagedResult<>(
+                articles,
+                articlePage.getNumber(),
+                articlePage.getSize(),
+                articlePage.getTotalElements(),
+                articlePage.getTotalPages());
+    }
 }

@@ -1,5 +1,7 @@
 package com.Emazon.Stock.domain.usecase;
 
+
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import com.Emazon.Stock.domain.utilities.constants.ArticleUseCaseConstants;
 import com.Emazon.Stock.domain.utilities.Exceptions.ArticleAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.api.IArticleServicePort;
@@ -61,4 +63,10 @@ public class ArticleUseCase implements IArticleServicePort {
         Set<Long> categoryIdSet = new HashSet<>(categoryIds);
         return categoryIdSet.size() != categoryIds.size();
     }
+
+    @Override
+    public PagedResult<Article> getPagedArticles(int page, int size, String sortBy, boolean ascending) {
+        return articlePersistencePort.getPagedArticles(page, size, sortBy, ascending);
+    }
+
 }
