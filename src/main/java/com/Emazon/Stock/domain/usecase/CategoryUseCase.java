@@ -59,4 +59,5 @@ public class CategoryUseCase implements ICategoryServicePort {
             throw new CategoryAlreadyExistsDomainException(CategoryUseCaseConstants.CATEGORY_ALREADY_EXISTS_MESSAGE);
         }
     }
+
 }

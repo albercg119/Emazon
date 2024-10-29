@@ -1,6 +1,7 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
 
+import com.Emazon.Stock.configuration.Constants;
 import com.Emazon.Stock.domain.utilities.exception.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
@@ -110,14 +111,14 @@ class ControllerAdvisorTest {
     @Test
     void handleGeneralException_shouldReturnInternalServerError() {
         // Simular una excepción general
-        Exception exception = new Exception("Internal server error");
+        Exception exception = new Exception(Constants.UNEXPECTED_ERROR);
 
         // Ejecutar el método del controlador
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleGeneralException(exception);
 
         // Validar que se devuelve el estado 500 y el mensaje correcto
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), response.getBody().getStatus());
-        assertEquals("Internal server error", response.getBody().getMessage());
+        assertEquals(Constants.INTERNAL_SERVER_ERROR, response.getBody().getStatus());
+        assertEquals(Constants.UNEXPECTED_ERROR, response.getBody().getMessage());  // Ahora espera el mensaje en español
     }
 }
