@@ -6,17 +6,17 @@ import com.Emazon.Stock.adapters.driving.http.mapper.ICategoryRequestMapper;
 import com.Emazon.Stock.adapters.driving.http.mapper.ICategoryResponseMapper;
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-
-
-
 @RestController
-@RequestMapping("/category")
+@RequestMapping(CategoryControllerConstants.CATEGORY_BASE_PATH)
+@Tag(name = CategoryControllerConstants.CATEGORY_CONTROLLER_TAG,
+        description = CategoryControllerConstants.CATEGORY_CONTROLLER_TAG_DESC)
 public class CategoryRestControllerAdapter {
 
     private final ICategoryServicePort categoryServicePort;
@@ -31,11 +31,26 @@ public class CategoryRestControllerAdapter {
         this.categoryResponseMapper = categoryResponseMapper;
     }
 
-    @Operation(summary = CategoryControllerConstants.CATEGORY_CREATED_SUMMARY)
-    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORY_SUCCESS_CODE,
-            description = CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY)
-    @PostMapping("/")
-    public ResponseEntity<String> addCategory(@RequestBody AddCategoryRequest request) {
+    @Operation(
+            summary = CategoryControllerConstants.CATEGORY_CREATED_SUMMARY,
+            description = CategoryControllerConstants.CATEGORY_OPERATION_DESCRIPTION
+    )
+    @ApiResponse(
+            responseCode = CategoryControllerConstants.CATEGORY_SUCCESS_CODE,
+            description = CategoryControllerConstants.CATEGORY_SUCCESS_RESPONSE
+    )
+    @ApiResponse(
+            responseCode = CategoryControllerConstants.CATEGORY_BAD_REQUEST_CODE,
+            description = CategoryControllerConstants.CATEGORY_BAD_REQUEST_RESPONSE
+    )
+    @ApiResponse(
+            responseCode = CategoryControllerConstants.CATEGORY_CONFLICT_CODE,
+            description = CategoryControllerConstants.CATEGORY_CONFLICT_RESPONSE
+    )
+    @PostMapping(CategoryControllerConstants.CATEGORY_POST_PATH)
+    public ResponseEntity<String> addCategory(
+            @Parameter(description = CategoryControllerConstants.CATEGORY_REQUEST_PARAM_DESC)
+            @RequestBody AddCategoryRequest request) {
         categoryServicePort.saveCategory(categoryRequestMapper.addRequestToCategory(request));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY);

@@ -1,5 +1,6 @@
 package com.Emazon.Stock.adapters.jpa.mysql.adapter.entity;
 
+import com.Emazon.Stock.adapters.utilities.CategoryEntityConstants;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,8 +10,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "category", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "nombre")
+@Table(name = CategoryEntityConstants.TABLE_NAME, uniqueConstraints = {
+        @UniqueConstraint(columnNames = CategoryEntityConstants.NOMBRE_COLUMN)
 })
 public class CategoryEntity {
     @Id
@@ -43,4 +44,3 @@ public class CategoryEntity {
         this.descripcion = descripcion;
     }
 }
-

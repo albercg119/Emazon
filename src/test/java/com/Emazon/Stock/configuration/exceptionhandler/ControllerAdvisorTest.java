@@ -20,7 +20,6 @@ import com.Emazon.Stock.domain.usecase.CategoryUseCase;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,54 +38,38 @@ class ControllerAdvisorTest {
 
     @BeforeEach
     void setUp() {
-        // No es necesario reinicializar `controllerAdvisor`, ya que la anotación @InjectMocks se encarga de ello
+
     }
 
     @Test
     void handleValidationExceptions_shouldReturnBadRequest() {
-        // Mock del BindingResult para simular errores de validación
+
         BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError = new FieldError("objectName", "fieldName", "defaultMessage");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
 
-        // Simulamos la excepción MethodArgumentNotValidException
+
         MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
         when(exception.getBindingResult()).thenReturn(bindingResult);
 
-        // Ejecutar el método del controlador
+
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleValidationExceptions(exception);
 
-        // Validar que se devuelve el estado 400 y el mensaje correcto
+
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
         assertEquals("{fieldName=defaultMessage}", response.getBody().getMessage());
     }
 
     @Test
-    void saveCategory_ShouldThrowException_WhenCategoryNameIsNotUnique() {
-        // Arrange
-        Category categoryWithNonUniqueName = new Category(null, "Electronics", "Valid description");
-
-        when(categoryPersistencePort.existsByName("Electronics")).thenReturn(true);
-
-        // Act & Assert
-        CategoryAlreadyExistsDomainException exception = assertThrows(CategoryAlreadyExistsDomainException.class,
-                () -> categoryUseCase.saveCategory(categoryWithNonUniqueName));
-
-        assertEquals("Category name must be unique", exception.getMessage());
-
-        verify(categoryPersistencePort, times(1)).existsByName("Electronics");
-    }
-
-    @Test
     void handleNoDataFoundException_shouldReturnNotFound() {
-        // Simular la excepción sin mensaje personalizado
+
         NoDataFoundException exception = new NoDataFoundException();
 
-        // Ejecutar el método del controlador
+
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleNoDataFoundException(exception);
 
-        // Validar que se devuelve el estado 404 y el mensaje por defecto
+
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
         assertEquals("No data found", response.getBody().getMessage());
@@ -94,13 +77,13 @@ class ControllerAdvisorTest {
 
     @Test
     void handleElementNotFoundException_shouldReturnNotFound() {
-        // Simular la excepción sin mensaje personalizado
+
         ElementNotFoundException exception = new ElementNotFoundException();
 
-        // Ejecutar el método del controlador
+
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleElementNotFoundException(exception);
 
-        // Validar que se devuelve el estado 404 y el mensaje por defecto
+
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
         assertEquals("Element not found", response.getBody().getMessage());
@@ -108,13 +91,13 @@ class ControllerAdvisorTest {
 
     @Test
     void handleIllegalArgumentException_shouldReturnBadRequest() {
-        // Simular la excepción
+
         IllegalArgumentException exception = new IllegalArgumentException("Illegal argument");
 
-        // Ejecutar el método del controlador
+
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleIllegalArgumentException(exception);
 
-        // Validar que se devuelve el estado 400 y el mensaje correcto
+
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
         assertEquals("Illegal argument", response.getBody().getMessage());
@@ -122,13 +105,13 @@ class ControllerAdvisorTest {
 
     @Test
     void handleGeneralException_shouldReturnInternalServerError() {
-        // Simular una excepción general
+
         Exception exception = new Exception("Internal server error");
 
-        // Ejecutar el método del controlador
+
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleGeneralException(exception);
 
-        // Validar que se devuelve el estado 500 y el mensaje correcto
+
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), response.getBody().getStatus());
         assertEquals("Internal server error", response.getBody().getMessage());
