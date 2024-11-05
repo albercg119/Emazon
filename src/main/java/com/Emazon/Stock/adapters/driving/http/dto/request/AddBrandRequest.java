@@ -7,11 +7,13 @@ import javax.validation.constraints.Size;
 public class AddBrandRequest {
 
     @NotBlank(message = AddBrandRequestConstants.BRAND_NAME_REQUIRED)
-    @Size(max = 50, message = AddBrandRequestConstants.BRAND_NAME_MAX_SIZE)
+    @Size(max = AddBrandRequestConstants.BRAND_NAME_MAX_LENGTH,
+            message = AddBrandRequestConstants.BRAND_NAME_MAX_SIZE)
     private final String name;
 
     @NotBlank(message = AddBrandRequestConstants.BRAND_DESCRIPTION_REQUIRED)
-    @Size(max = 120, message = AddBrandRequestConstants.BRAND_DESCRIPTION_MAX_SIZE)
+    @Size(max = AddBrandRequestConstants.BRAND_DESCRIPTION_MAX_LENGTH,
+            message = AddBrandRequestConstants.BRAND_DESCRIPTION_MAX_SIZE)
     private final String description;
 
     public String getName() {

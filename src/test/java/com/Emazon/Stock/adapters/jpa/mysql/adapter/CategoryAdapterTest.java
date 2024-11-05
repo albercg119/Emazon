@@ -199,3 +199,7 @@ class CategoryAdapterTest {
         assertThrows(NoDataFoundException.class, () -> categoryAdapter.getAllCategories());
     }
 }
+
+
+
+

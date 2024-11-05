@@ -28,13 +28,13 @@ public class BrandUseCase implements IBrandServicePort {
         if (brand.getNombre() == null || brand.getNombre().isEmpty()) {
             throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_NULL_OR_EMPTY_ERROR);
         }
-        if (brand.getNombre().length() > 50) {
+        if (brand.getNombre().length() > BrandUseCaseConstants.BRAND_NAME_MAX_LENGTH) {
             throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_LENGTH_ERROR);
         }
         if (brand.getDescripcion() == null || brand.getDescripcion().isEmpty()) {
             throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_NULL_OR_EMPTY_ERROR);
         }
-        if (brand.getDescripcion().length() > 120) {
+        if (brand.getDescripcion().length() > BrandUseCaseConstants.BRAND_DESCRIPTION_MAX_LENGTH) {
             throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_LENGTH_ERROR);
         }
     }

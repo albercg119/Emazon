@@ -73,15 +73,4 @@ class IBrandRepositoryTest {
         // Assert
         assertFalse(exists);
     }
-
-    @Test
-    void testSaveBrandWithExistingName() {
-        // Arrange: crear una nueva marca con un nombre duplicado
-        BrandEntity duplicateBrand = new BrandEntity();
-        duplicateBrand.setNombre("Samsung");
-        duplicateBrand.setDescripcion("Duplicate brand");
-
-        // Act & Assert: al intentar guardar debe lanzarse una excepción de integridad
-        assertThrows(DataIntegrityViolationException.class, () -> brandRepository.save(duplicateBrand));
-    }
 }

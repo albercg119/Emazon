@@ -62,7 +62,7 @@ class CategoryRestControllerAdapterTest {
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Category created successfully", response.getBody());
+        assertEquals("Categoría creada exitosamente", response.getBody());
         verify(categoryServicePort, times(1)).saveCategory(domainCategory);
     }
 
@@ -71,7 +71,7 @@ class CategoryRestControllerAdapterTest {
         // Arrange
         int page = 0;
         int size = 10;
-        String sort = "asc"; // O "desc" dependiendo de lo que necesites
+        String sort = "asc";
 
         Category category1 = new Category(1L, "Electronics", "Devices");
         Category category2 = new Category(2L, "Books", "Various books");
@@ -85,7 +85,7 @@ class CategoryRestControllerAdapterTest {
         List<CategoryResponse> categoryResponses = Arrays.asList(categoryResponse1, categoryResponse2);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(categoryResponses, page, size, 2, 1);
 
-        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult); // Considera pasar true o false basado en el valor de sort
+        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult);
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
@@ -94,16 +94,17 @@ class CategoryRestControllerAdapterTest {
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true); // Verifica si el booleano es correcto basado en el sort
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true);
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
+
     @Test
     void getPagedCategories_ShouldReturnEmptyPagedResult_WhenNoCategoriesAvailable() {
         // Arrange
         Integer page = 0;
         Integer size = 10;
-        String order = "asc";  // Usar "asc" o "desc" según sea necesario
-        boolean ascending = order.equalsIgnoreCase("asc");  // Convertir a booleano
+        String order = "asc";
+        boolean ascending = order.equalsIgnoreCase("asc");
 
         PagedResult<Category> pagedResult = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
@@ -117,7 +118,7 @@ class CategoryRestControllerAdapterTest {
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);  // Usar el booleano aquí
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
 
@@ -148,15 +149,16 @@ class CategoryRestControllerAdapterTest {
     }
 
     @Test
-    void getAllCategories_ShouldReturnNoContent_WhenNoCategoriesAvailable() {
+    void getAllCategories_ShouldReturnEmptyList_WhenNoCategoriesAvailable() {
         // Arrange
         when(categoryServicePort.getAllCategories()).thenReturn(Collections.emptyList());
+        when(categoryResponseMapper.toCategoryResponseList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
         // Act
         ResponseEntity<List<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getAllCategories();
 
         // Assert
-        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(Collections.emptyList(), responseEntity.getBody());
         verify(categoryServicePort, times(1)).getAllCategories();
         verify(categoryResponseMapper, times(1)).toCategoryResponseList(Collections.emptyList());

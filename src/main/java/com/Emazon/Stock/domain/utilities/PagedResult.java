@@ -9,7 +9,6 @@ public class PagedResult<T> {
     private long totalElements;
     private int totalPages;
 
-    // Constructores, getters y setters
     public PagedResult(List<T> content, int page, int size, long totalElements, int totalPages) {
         this.content = content;
         this.page = page;

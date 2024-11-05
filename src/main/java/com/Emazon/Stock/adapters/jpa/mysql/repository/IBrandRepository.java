@@ -1,6 +1,7 @@
 package com.Emazon.Stock.adapters.jpa.mysql.repository;
 
 import com.Emazon.Stock.adapters.jpa.mysql.adapter.entity.BrandEntity;
+import com.Emazon.Stock.adapters.utilities.BrandRepositoryConstants;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +12,9 @@ public interface IBrandRepository extends JpaRepository<BrandEntity, Long> {
 
     Optional<BrandEntity> findByNombre(String nombre);
 
-    // Nuevo método de consulta que excluye un ID específico
-    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END FROM BrandEntity b WHERE LOWER(b.nombre) = LOWER(:nombre) AND b.id != :id")
-    boolean existsByNombreExcludingId(@Param("nombre") String nombre, @Param("id") Long id);
+    @Query(BrandRepositoryConstants.EXISTS_BY_NOMBRE_EXCLUDING_ID)
+    boolean existsByNombreExcludingId(
+            @Param(BrandRepositoryConstants.PARAM_NOMBRE) String nombre,
+            @Param(BrandRepositoryConstants.PARAM_ID) Long id
+    );
 }

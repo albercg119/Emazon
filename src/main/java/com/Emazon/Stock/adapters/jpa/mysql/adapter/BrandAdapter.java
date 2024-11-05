@@ -1,9 +1,6 @@
 package com.Emazon.Stock.adapters.jpa.mysql.adapter;
 
-import com.Emazon.Stock.adapters.jpa.mysql.adapter.entity.BrandEntity;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.BrandAlreadyExistsException;
-import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
-import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.mapper.IBrandEntityMapper;
 import com.Emazon.Stock.adapters.jpa.mysql.repository.IBrandRepository;
 import com.Emazon.Stock.domain.model.Brand;

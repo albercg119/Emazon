@@ -2,6 +2,8 @@ package com.Emazon.Stock.domain.usecase;
 
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.spi.IBrandPersistencePort;
+import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.constants.BrandUseCaseConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -43,7 +45,7 @@ class BrandUseCaseTest {
     void saveBrand_ShouldThrowException_WhenBrandIsNull() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(null));
-        assertEquals("Brand cannot be null", exception.getMessage());
+        assertEquals("La marca no puede ser nula", exception.getMessage());
     }
 
     @Test
@@ -53,7 +55,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithNullName));
-        assertEquals("Brand name cannot be null or empty", exception.getMessage());
+        assertEquals("El nombre de la marca no puede ser nulo o vacío", exception.getMessage());
     }
 
     @Test
@@ -63,7 +65,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithEmptyName));
-        assertEquals("Brand name cannot be null or empty", exception.getMessage());
+        assertEquals("El nombre de la marca no puede ser nulo o vacío", exception.getMessage());
     }
 
     @Test
@@ -73,7 +75,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithNullDescription));
-        assertEquals("Brand description cannot be null or empty", exception.getMessage());
+        assertEquals("La descripción de la marca no puede ser nula o vacía", exception.getMessage());
     }
 
     @Test
@@ -83,7 +85,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithEmptyDescription));
-        assertEquals("Brand description cannot be null or empty", exception.getMessage());
+        assertEquals("La descripción de la marca no puede ser nula o vacía", exception.getMessage());
     }
 
     @Test
@@ -94,7 +96,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithLongName));
-        assertEquals("Brand name cannot exceed 50 characters", exception.getMessage());
+        assertEquals("El nombre de la marca no puede exceder los 50 caracteres", exception.getMessage());
     }
 
     @Test
@@ -105,7 +107,7 @@ class BrandUseCaseTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> brandUseCase.saveBrand(brandWithLongDescription));
-        assertEquals("Brand description cannot exceed 120 characters", exception.getMessage());
+        assertEquals("La descripción de la marca no puede exceder los 120 caracteres", exception.getMessage());
     }
 
     @Test
@@ -116,10 +118,10 @@ class BrandUseCaseTest {
         when(brandPersistencePort.existsByName("Sony")).thenReturn(true);
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        BrandAlreadyExistsDomainException exception = assertThrows(BrandAlreadyExistsDomainException.class,
                 () -> brandUseCase.saveBrand(brandWithNonUniqueName));
 
-        assertEquals("Brand name must be unique", exception.getMessage());
+        assertEquals("El nombre de la marca ya existe en el sistema", exception.getMessage());
 
         verify(brandPersistencePort, times(1)).existsByName("Sony");
     }

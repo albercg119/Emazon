@@ -2,9 +2,9 @@ package com.Emazon.Stock.domain.usecase;
 
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import com.Emazon.Stock.domain.model.Category;
+import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 import com.Emazon.Stock.domain.spi.ICategoryPersistencePort;
-import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.utilities.constants.CategoryUseCaseConstants;
 
 import java.util.List;
@@ -59,4 +59,5 @@ public class CategoryUseCase implements ICategoryServicePort {
             throw new CategoryAlreadyExistsDomainException(CategoryUseCaseConstants.CATEGORY_ALREADY_EXISTS_MESSAGE);
         }
     }
+
 }

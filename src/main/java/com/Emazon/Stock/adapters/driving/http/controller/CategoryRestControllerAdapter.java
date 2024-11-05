@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -36,12 +35,15 @@ public class CategoryRestControllerAdapter {
     @ApiResponse(responseCode = CategoryControllerConstants.CATEGORY_SUCCESS_CODE,
             description = CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY)
     @PostMapping("/")
-    public ResponseEntity<String> addCategory(@Valid@RequestBody AddCategoryRequest request) {
+    public ResponseEntity<String> addCategory(@RequestBody AddCategoryRequest request) {
         categoryServicePort.saveCategory(categoryRequestMapper.addRequestToCategory(request));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY);
     }
 
+    @Operation(summary = CategoryControllerConstants.CATEGORIES_PAGED_SUMMARY)
+    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORIES_FOUND_CODE,
+            description = CategoryControllerConstants.CATEGORIES_FOUND)
     @GetMapping("/paged")
     public ResponseEntity<PagedResult<CategoryResponse>> getPagedCategories(
             @RequestParam(value = CategoryControllerConstants.PARAM_PAGE,
@@ -50,7 +52,6 @@ public class CategoryRestControllerAdapter {
                     defaultValue = CategoryControllerConstants.DEFAULT_SIZE) Integer size,
             @RequestParam(value = CategoryControllerConstants.PARAM_SORT,
                     defaultValue = CategoryControllerConstants.DEFAULT_SORT) String sort) {
-
         boolean ascending = sort.equalsIgnoreCase(CategoryControllerConstants.SORT_ASCENDING);
 
         PagedResult<CategoryResponse> response = categoryResponseMapper.toCategoryResponsePagedResult(

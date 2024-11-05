@@ -2,7 +2,6 @@ package com.Emazon.Stock.adapters.utilities;
 
 public class BrandControllerConstants {
 
-
     public static final String BRAND_BASE_ENDPOINT = "/brand";
     public static final String BRAND_ADD_ENDPOINT = "/";
     public static final String ADD_BRAND_SUMMARY = "Añadir una nueva marca";

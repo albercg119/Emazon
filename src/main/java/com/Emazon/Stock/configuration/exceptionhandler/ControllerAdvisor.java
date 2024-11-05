@@ -1,6 +1,7 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
 
+import com.Emazon.Stock.configuration.Constants;
 import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
@@ -36,9 +37,9 @@ public class ControllerAdvisor {
     @ExceptionHandler(CategoryAlreadyExistsDomainException.class)
     public ResponseEntity<Map<String, String>> handleCategoryAlreadyExists(CategoryAlreadyExistsDomainException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("status", "409 CONFLICT");
-        response.put("timestamp", LocalDateTime.now().toString());
+        response.put(Constants.MESSAGE_FIELD, ex.getMessage());
+        response.put(Constants.STATUS_FIELD, Constants.CONFLICT_STATUS);
+        response.put(Constants.TIMESTAMP_FIELD, LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -46,9 +47,9 @@ public class ControllerAdvisor {
     @ExceptionHandler(BrandAlreadyExistsDomainException.class)
     public ResponseEntity<Map<String, String>> handleBrandAlreadyExists(BrandAlreadyExistsDomainException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("status", "409 CONFLICT");
-        response.put("timestamp", LocalDateTime.now().toString());
+        response.put(Constants.MESSAGE_FIELD, ex.getMessage());
+        response.put(Constants.STATUS_FIELD, Constants.CONFLICT_STATUS);
+        response.put(Constants.TIMESTAMP_FIELD, LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -57,7 +58,7 @@ public class ControllerAdvisor {
     public ResponseEntity<ExceptionResponse> handleNoDataFoundException(NoDataFoundException ex) {
         ExceptionResponse response = new ExceptionResponse(
                 ex.getMessage(),
-                HttpStatus.NOT_FOUND.toString(),
+                Constants.NOT_FOUND_STATUS,
                 LocalDateTime.now());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
