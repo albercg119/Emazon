@@ -18,7 +18,7 @@ class IBrandEntityMapperTest {
 
     @BeforeEach
     void setUp() {
-
+        // Usa la implementación generada por MapStruct
         brandEntityMapper = Mappers.getMapper(IBrandEntityMapper.class);
     }
 

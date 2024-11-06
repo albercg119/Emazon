@@ -7,11 +7,13 @@ import javax.validation.constraints.Size;
 public class AddCategoryRequest {
 
     @NotBlank(message = AddCategoryRequestConstants.CATEGORY_NAME_REQUIRED)
-    @Size(max = 50, message = AddCategoryRequestConstants.CATEGORY_NAME_MAX_SIZE)
+    @Size(max = AddCategoryRequestConstants.CATEGORY_NAME_MAX_LENGTH,
+            message = AddCategoryRequestConstants.CATEGORY_NAME_MAX_SIZE)
     private final String name;
 
     @NotBlank(message = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_REQUIRED)
-    @Size(max = 90, message = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_MAX_SIZE)
+    @Size(max = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_MAX_LENGTH,
+            message = AddCategoryRequestConstants.CATEGORY_DESCRIPTION_MAX_SIZE)
     private final String description;
 
     public String getName() {

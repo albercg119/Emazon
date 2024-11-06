@@ -92,6 +92,4 @@ class BrandAdapterTest {
         assertFalse(result);
         verify(brandRepository, times(1)).findByNombre(brandName);
     }
-
-
 }

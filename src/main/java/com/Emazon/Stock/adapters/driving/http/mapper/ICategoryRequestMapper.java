@@ -4,14 +4,13 @@ import com.Emazon.Stock.adapters.driving.http.dto.request.AddCategoryRequest;
 import com.Emazon.Stock.domain.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import com.Emazon.Stock.adapters.utilities.CategoryMapperConstants;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = CategoryMapperConstants.SPRING_COMPONENT_MODEL)
 public interface ICategoryRequestMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(source = "name", target = "nombre")
-    @Mapping(source = "description", target = "descripcion")
+    @Mapping(target = CategoryMapperConstants.MODEL_ID, ignore = true)
+    @Mapping(source = CategoryMapperConstants.DTO_NAME, target = CategoryMapperConstants.MODEL_NOMBRE)
+    @Mapping(source = CategoryMapperConstants.DTO_DESCRIPTION, target = CategoryMapperConstants.MODEL_DESCRIPCION)
     Category addRequestToCategory(AddCategoryRequest addCategoryRequest);
-
-
 }

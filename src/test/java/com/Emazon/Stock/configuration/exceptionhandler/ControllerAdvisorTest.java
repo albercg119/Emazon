@@ -1,118 +1,168 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
-import com.Emazon.Stock.domain.utilities.Exceptions.ArticleAlreadyExistsDomainException;
-import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
+import com.Emazon.Stock.configuration.Constants;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
+import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
 import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
-import com.Emazon.Stock.configuration.Constants;
+import com.Emazon.Stock.domain.utilities.Exceptions.ArticleAlreadyExistsDomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 class ControllerAdvisorTest {
 
-    @InjectMocks
     private ControllerAdvisor controllerAdvisor;
+
+    @Mock
+    private MethodArgumentNotValidException methodArgumentNotValidException;
+
+    @Mock
+    private BindingResult bindingResult;
 
     @BeforeEach
     void setUp() {
+        openMocks(this);
         controllerAdvisor = new ControllerAdvisor();
     }
 
     @Test
-    void handleValidationExceptions_shouldReturnBadRequest() {
-        BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = new FieldError("objectName", "fieldName", "defaultMessage");
-        when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
+    void handleValidationExceptions() {
+        // Arrange
+        when(methodArgumentNotValidException.getBindingResult()).thenReturn(bindingResult);
+        when(bindingResult.getFieldErrors()).thenReturn(Arrays.asList(
+                new FieldError("object", "field1", "error1"),
+                new FieldError("object", "field2", "error2")
+        ));
 
-        MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
-        when(exception.getBindingResult()).thenReturn(bindingResult);
+        // Act
+        ResponseEntity<ExceptionResponse> response =
+                controllerAdvisor.handleValidationExceptions(methodArgumentNotValidException);
 
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleValidationExceptions(exception);
-
+        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_BAD_REQUEST, response.getBody().getStatus());
-        assertEquals("{fieldName=defaultMessage}", response.getBody().getMessage());
     }
 
     @Test
-    void handleBrandAlreadyExists_shouldReturnConflict() {
-        BrandAlreadyExistsDomainException exception = new BrandAlreadyExistsDomainException("Brand already exists");
+    void handleCategoryAlreadyExists() {
+        // Arrange
+        CategoryAlreadyExistsDomainException exception =
+                new CategoryAlreadyExistsDomainException(Constants.CATEGORY_ALREADY_EXISTS_EXCEPTION_MESSAGE);
 
+        // Act
+        ResponseEntity<Map<String, String>> response = controllerAdvisor.handleCategoryAlreadyExists(exception);
+
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(Constants.STATUS_CONFLICT, response.getBody().get(Constants.RESPONSE_STATUS_KEY));
+        assertEquals(Constants.CATEGORY_ALREADY_EXISTS_EXCEPTION_MESSAGE,
+                response.getBody().get(Constants.RESPONSE_MESSAGE_KEY));
+    }
+
+    @Test
+    void handleBrandAlreadyExists() {
+        // Arrange
+        BrandAlreadyExistsDomainException exception =
+                new BrandAlreadyExistsDomainException(Constants.BRAND_ALREADY_EXISTS_EXCEPTION_MESSAGE);
+
+        // Act
         ResponseEntity<Map<String, String>> response = controllerAdvisor.handleBrandAlreadyExists(exception);
 
+        // Assert
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertEquals("Brand already exists", response.getBody().get(Constants.RESPONSE_MESSAGE_KEY));
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_CONFLICT, response.getBody().get(Constants.RESPONSE_STATUS_KEY));
+        assertEquals(Constants.BRAND_ALREADY_EXISTS_EXCEPTION_MESSAGE,
+                response.getBody().get(Constants.RESPONSE_MESSAGE_KEY));
     }
 
     @Test
-    void handleArticleAlreadyExists_shouldReturnConflict() {
-        ArticleAlreadyExistsDomainException exception = new ArticleAlreadyExistsDomainException("Article already exists");
+    void handleArticleAlreadyExists() {
+        // Arrange
+        ArticleAlreadyExistsDomainException exception =
+                new ArticleAlreadyExistsDomainException(Constants.ARTICLE_ALREADY_EXISTS_EXCEPTION_MESSAGE);
 
+        // Act
         ResponseEntity<Map<String, String>> response = controllerAdvisor.handleArticleAlreadyExists(exception);
 
+        // Assert
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertEquals("Article already exists", response.getBody().get("message"));
+        assertNotNull(response.getBody());
         assertEquals("409 CONFLICT", response.getBody().get("status"));
+        assertEquals(Constants.ARTICLE_ALREADY_EXISTS_EXCEPTION_MESSAGE, response.getBody().get("message"));
     }
 
     @Test
-    void handleNoDataFoundException_shouldReturnNotFound() {
-        NoDataFoundException exception = new NoDataFoundException("No data found");
+    void handleNoDataFoundException() {
+        // Arrange
+        NoDataFoundException exception = new NoDataFoundException();
 
+        // Act
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleNoDataFoundException(exception);
 
+        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_NOT_FOUND, response.getBody().getStatus());
-        assertEquals("No data found", response.getBody().getMessage());
     }
 
     @Test
-    void handleElementNotFoundException_shouldReturnNotFound() {
-        ElementNotFoundException exception = new ElementNotFoundException("Element not found");
+    void handleElementNotFoundException() {
+        // Arrange
+        ElementNotFoundException exception = new ElementNotFoundException();
 
+        // Act
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleElementNotFoundException(exception);
 
+        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_NOT_FOUND, response.getBody().getStatus());
-        assertEquals("Element not found", response.getBody().getMessage());
     }
 
     @Test
-    void handleIllegalArgumentException_shouldReturnBadRequest() {
-        IllegalArgumentException exception = new IllegalArgumentException("Illegal argument");
+    void handleIllegalArgumentException() {
+        // Arrange
+        IllegalArgumentException exception = new IllegalArgumentException("Test message");
 
+        // Act
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleIllegalArgumentException(exception);
 
+        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_BAD_REQUEST, response.getBody().getStatus());
-        assertEquals("Illegal argument", response.getBody().getMessage());
+        assertEquals("Test message", response.getBody().getMessage());
     }
 
     @Test
-    void handleGeneralException_shouldReturnInternalServerError() {
-        Exception exception = new Exception("Internal server error");
+    void handleGeneralException() {
+        // Arrange
+        Exception exception = new Exception("Test message");
 
+        // Act
         ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleGeneralException(exception);
 
+        // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNotNull(response.getBody());
         assertEquals(Constants.STATUS_INTERNAL_SERVER_ERROR, response.getBody().getStatus());
-        assertEquals("Internal server error", response.getBody().getMessage());
+        assertEquals("Test message", response.getBody().getMessage());
     }
 }

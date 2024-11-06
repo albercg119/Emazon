@@ -1,12 +1,10 @@
 package com.Emazon.Stock.adapters.jpa.mysql.exception;
 
+
+import com.Emazon.Stock.adapters.utilities.ExceptionConstants;
+
 public class NoDataFoundException extends RuntimeException {
     public NoDataFoundException() {
-        super("No data found");
+        super(ExceptionConstants.NO_DATA_FOUND_MESSAGE);
     }
-
-    public NoDataFoundException(String message) {
-        super(message);
-    }
-
 }

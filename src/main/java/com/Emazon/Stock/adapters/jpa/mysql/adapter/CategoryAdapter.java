@@ -70,6 +70,6 @@ public class CategoryAdapter implements ICategoryPersistencePort {
     public Category getCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .map(categoryEntityMapper::toModel)
-                .orElseThrow(() -> new NoDataFoundException(CategoryAdapterConstants.CATEGORY_NOT_FOUND_MESSAGE + id));
+                .orElseThrow(NoDataFoundException::new);
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -36,7 +35,7 @@ public class CategoryRestControllerAdapter {
     @ApiResponse(responseCode = CategoryControllerConstants.CATEGORY_SUCCESS_CODE,
             description = CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY)
     @PostMapping("/")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody AddCategoryRequest request) {
+    public ResponseEntity<String> addCategory(@RequestBody AddCategoryRequest request) {
         categoryServicePort.saveCategory(categoryRequestMapper.addRequestToCategory(request));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CategoryControllerConstants.CATEGORY_CREATED_SUCCESSFULLY);
@@ -60,6 +59,9 @@ public class CategoryRestControllerAdapter {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = CategoryControllerConstants.CATEGORIES_UNPAGED_SUMMARY)
+    @ApiResponse(responseCode = CategoryControllerConstants.CATEGORIES_FOUND_CODE,
+            description = CategoryControllerConstants.CATEGORIES_FOUND)
     @GetMapping("/")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryResponseMapper.toCategoryResponseList(categoryServicePort.getAllCategories()));

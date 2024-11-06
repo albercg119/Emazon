@@ -22,7 +22,6 @@ class ArticleUseCaseTest {
     @Mock
     private IArticlePersistencePort articlePersistencePort;
 
-
     @InjectMocks
     private ArticleUseCase articleUseCase;
 
@@ -32,104 +31,100 @@ class ArticleUseCaseTest {
     }
 
     @Test
-    void saveArticle_ShouldSaveArticle_WhenArticleIsValid() {
+    void saveArticle_DebeGuardarArticulo_CuandoArticuloEsValido() {
         // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article validArticle = new Article(1L, "Laptop", "High-performance laptop", 10, 1500.0, brand, List.of(
-                new Category(1L, "Electronics", "Devices"),
-                new Category(2L, "Computers", "Laptops")
+        Brand marca = new Brand(1L, "NombreMarca", "DescripcionMarca");
+        Article articuloValido = new Article(1L, "Laptop", "Laptop de alto rendimiento", 10, 1500.0, marca, List.of(
+                new Category(1L, "Electrónicos", "Dispositivos"),
+                new Category(2L, "Computadoras", "Laptops")
         ));
 
-        // Mock behavior for checking unique name
-        when(articlePersistencePort.existsByName(validArticle.getName())).thenReturn(false);
+        when(articlePersistencePort.existsByName(articuloValido.getName())).thenReturn(false);
 
         // Act
-        assertDoesNotThrow(() -> articleUseCase.saveArticle(validArticle));
+        assertDoesNotThrow(() -> articleUseCase.saveArticle(articuloValido));
 
         // Assert
-        verify(articlePersistencePort, times(1)).saveArticle(validArticle);
+        verify(articlePersistencePort, times(1)).saveArticle(articuloValido);
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenArticleNameIsNotUnique() {
+    void saveArticle_DebeLanzarExcepcion_CuandoNombreNoEsUnico() {
         // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article articleWithNonUniqueName = new Article(null, "Laptop", "Valid description", 10, 1500.0, brand, List.of(
-                new Category(1L, "Electronics", "Devices")
+        Brand marca = new Brand(1L, "NombreMarca", "DescripcionMarca");
+        Article articuloConNombreDuplicado = new Article(null, "Laptop", "Descripción válida", 10, 1500.0, marca, List.of(
+                new Category(1L, "Electrónicos", "Dispositivos")
         ));
 
         when(articlePersistencePort.existsByName("Laptop")).thenReturn(true);
 
         // Act & Assert
-        ArticleAlreadyExistsDomainException exception = assertThrows(ArticleAlreadyExistsDomainException.class,
-                () -> articleUseCase.saveArticle(articleWithNonUniqueName));
+        ArticleAlreadyExistsDomainException excepcion = assertThrows(ArticleAlreadyExistsDomainException.class,
+                () -> articleUseCase.saveArticle(articuloConNombreDuplicado));
 
-        assertEquals(ArticleUseCaseConstants.ARTICLE_NAME_UNIQUE_MESSAGE, exception.getMessage());
-
-        verify(articlePersistencePort, times(1)).existsByName("Laptop");
+        assertEquals(ArticleUseCaseConstants.ARTICLE_NAME_UNIQUE_MESSAGE, excepcion.getMessage());
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenArticleHasEmptyFields() {
+    void saveArticle_DebeLanzarExcepcion_CuandoCamposEstanVacios() {
         // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article invalidArticle = new Article(1L, "", "", 0, 0.0, brand, List.of());
+        Brand marca = new Brand(1L, "NombreMarca", "DescripcionMarca");
+        Article articuloInvalido = new Article(1L, "", "", 0, 0.0, marca, List.of());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(invalidArticle));
-        assertEquals(ArticleUseCaseConstants.EMPTY_FIELDS_MESSAGE, exception.getMessage());
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+                () -> articleUseCase.saveArticle(articuloInvalido));
+        assertEquals(ArticleUseCaseConstants.EMPTY_FIELDS_MESSAGE, excepcion.getMessage());
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenCategoriesAreDuplicate() {
+    void saveArticle_DebeLanzarExcepcion_CuandoHayCategoriasDuplicadas() {
         // Arrange
-        Category category = new Category(1L, "Electronics", "Devices");
-        Article articleWithDuplicateCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
-                List.of(category, category)
+        Category categoria = new Category(1L, "Electrónicos", "Dispositivos");
+        Article articuloConCategoriasDuplicadas = new Article(1L, "Laptop", "Descripción válida", 10, 1500.0,
+                new Brand(1L, "NombreMarca", "DescripcionMarca"),
+                List.of(categoria, categoria)
         );
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithDuplicateCategories));
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+                () -> articleUseCase.saveArticle(articuloConCategoriasDuplicadas));
 
-        assertEquals(ArticleUseCaseConstants.DUPLICATE_CATEGORIES_MESSAGE, exception.getMessage());
+        assertEquals(ArticleUseCaseConstants.DUPLICATE_CATEGORIES_MESSAGE, excepcion.getMessage());
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenCategoryCountIsMoreThanThree() {
+    void saveArticle_DebeLanzarExcepcion_CuandoHayMasDeTresCategorias() {
         // Arrange
-        Article articleWithTooManyCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
+        Article articuloConDemasiadasCategorias = new Article(1L, "Laptop", "Descripción válida", 10, 1500.0,
+                new Brand(1L, "NombreMarca", "DescripcionMarca"),
                 List.of(
-                        new Category(1L, "Electronics", "Devices"),
-                        new Category(2L, "Computers", "Laptops"),
-                        new Category(3L, "Gadgets", "Various gadgets"),
-                        new Category(4L, "Office", "Office equipment")
+                        new Category(1L, "Electrónicos", "Dispositivos"),
+                        new Category(2L, "Computadoras", "Laptops"),
+                        new Category(3L, "Gadgets", "Varios gadgets"),
+                        new Category(4L, "Oficina", "Equipos de oficina")
                 )
         );
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithTooManyCategories));
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+                () -> articleUseCase.saveArticle(articuloConDemasiadasCategorias));
 
-        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, exception.getMessage());
+        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, excepcion.getMessage());
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenCategoryCountIsZero() {
-        // Arrange: Artículo con todos los campos válidos excepto las categorías vacías
-        Article articleWithNoCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
-                List.of() // Lista de categorías vacía
+    void saveArticle_DebeLanzarExcepcion_CuandoNoHayCategorias() {
+        // Arrange
+        Article articuloSinCategorias = new Article(1L, "Laptop", "Descripción válida", 10, 1500.0,
+                new Brand(1L, "NombreMarca", "DescripcionMarca"),
+                List.of()
         );
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithNoCategories));
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+                () -> articleUseCase.saveArticle(articuloSinCategorias));
 
-        // Asegurarse de que la excepción lanzada es por el número de categorías
-        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, exception.getMessage());
+        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, excepcion.getMessage());
     }
 }

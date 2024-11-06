@@ -1,141 +1,146 @@
 package com.Emazon.Stock.adapters.driving.http.mapper;
 
 import com.Emazon.Stock.adapters.driving.http.dto.response.ArticleResponse;
+import com.Emazon.Stock.adapters.driving.http.dto.response.CategoryResponse;
 import com.Emazon.Stock.domain.model.Article;
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.model.Category;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class IArticleResponseMapperTest {
 
-    @InjectMocks
-    private IArticleResponseMapper articleResponseMapper;
+    private final IArticleResponseMapper mapper = Mappers.getMapper(IArticleResponseMapper.class);
 
     @Mock
-    private Article article;
+    private Article mockArticle;
 
     @Mock
-    private Brand brand;
+    private Brand mockBrand;
 
     @Mock
-    private Category category;
+    private Category mockCategory;
 
-    @Mock
-    private PagedResult<Article> pagedResult;
+    @Test
+    void toArticleResponse_WhenArticleIsComplete_ShouldMapAllFields() {
+        // Arrange
+        when(mockBrand.getNombre()).thenReturn("Nike");
+        when(mockCategory.getId()).thenReturn(1L);
+        when(mockCategory.getNombre()).thenReturn("Deportes");
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+        when(mockArticle.getId()).thenReturn(1L);
+        when(mockArticle.getName()).thenReturn("Zapatillas Running");
+        when(mockArticle.getDescription()).thenReturn("Zapatillas para correr");
+        when(mockArticle.getPrice()).thenReturn(99.99);
+        when(mockArticle.getBrand()).thenReturn(mockBrand);
+        when(mockArticle.getCategories()).thenReturn(Arrays.asList(mockCategory));
+
+        // Act
+        ArticleResponse response = mapper.toArticleResponse(mockArticle);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1L, response.getId());
+        assertEquals("Zapatillas Running", response.getName());
+        assertEquals("Zapatillas para correr", response.getDescription());
+        assertEquals(99.99, response.getPrice());
+        assertEquals("Nike", response.getBrandName());
     }
 
     @Test
-    void testToArticleResponse() {
-        // Simulamos un artículo con categorías y marca
-        when(article.getId()).thenReturn(1L);
-        when(article.getName()).thenReturn("Laptop");
-        when(article.getDescription()).thenReturn("Laptop con 16GB RAM");
-        when(article.getPrice()).thenReturn(1500.0);
+    void toArticleResponseList_WithEmptyList_ShouldReturnEmptyList() {
+        // Arrange
+        List<Article> emptyList = Collections.emptyList();
 
-        when(brand.getNombre()).thenReturn("HP");
-        when(article.getBrand()).thenReturn(brand);
+        // Act
+        List<ArticleResponse> responses = mapper.toArticleResponseList(emptyList);
 
-        when(category.getId()).thenReturn(1L);
-        when(category.getNombre()).thenReturn("Electrónica");
-        List<Category> categories = Arrays.asList(category);
-        when(article.getCategories()).thenReturn(categories);
-
-        // Llamamos al método de mapeo
-        ArticleResponse articleResponse = articleResponseMapper.toArticleResponse(article);
-
-        // Validamos el mapeo
-        assertNotNull(articleResponse);
-        assertEquals(1L, articleResponse.getId());
-        assertEquals("Laptop", articleResponse.getName());
-        assertEquals("Laptop con 16GB RAM", articleResponse.getDescription());
-        assertEquals(1500.0, articleResponse.getPrice());
-        assertEquals("HP", articleResponse.getBrandName());
-        assertNotNull(articleResponse.getCategories());
-        assertEquals(1, articleResponse.getCategories().size());
-        assertEquals("Electrónica", articleResponse.getCategories().get(0).getName());
-        assertNull(articleResponse.getCategories().get(0).getDescription()); // Validamos que la descripción sea null
+        // Assert
+        assertNotNull(responses);
+        assertTrue(responses.isEmpty());
     }
 
     @Test
-    void testToArticleResponseList() {
-        // Simulamos una lista de artículos
-        Article article1 = mock(Article.class);
-        Article article2 = mock(Article.class);
+    void toArticleResponseList_WithArticles_ShouldMapAllArticles() {
+        // Arrange
+        when(mockBrand.getNombre()).thenReturn("Nike");
+        when(mockCategory.getId()).thenReturn(1L);
+        when(mockCategory.getNombre()).thenReturn("Deportes");
 
-        when(article1.getId()).thenReturn(1L);
-        when(article1.getName()).thenReturn("Laptop");
-        when(article1.getDescription()).thenReturn("Laptop con 16GB RAM");
-        when(article1.getPrice()).thenReturn(1500.0);
-        when(brand.getNombre()).thenReturn("HP");
-        when(article1.getBrand()).thenReturn(brand);
+        when(mockArticle.getId()).thenReturn(1L);
+        when(mockArticle.getName()).thenReturn("Zapatillas Running");
+        when(mockArticle.getDescription()).thenReturn("Zapatillas para correr");
+        when(mockArticle.getPrice()).thenReturn(99.99);
+        when(mockArticle.getBrand()).thenReturn(mockBrand);
+        when(mockArticle.getCategories()).thenReturn(Arrays.asList(mockCategory));
 
-        when(article2.getId()).thenReturn(2L);
-        when(article2.getName()).thenReturn("Smartphone");
-        when(article2.getDescription()).thenReturn("Smartphone con cámara 4K");
-        when(article2.getPrice()).thenReturn(800.0);
-        when(brand.getNombre()).thenReturn("Samsung");
-        when(article2.getBrand()).thenReturn(brand);
+        List<Article> articles = Collections.singletonList(mockArticle);
 
-        List<Article> articles = Arrays.asList(article1, article2);
+        // Act
+        List<ArticleResponse> responses = mapper.toArticleResponseList(articles);
 
-        // Llamamos al método de mapeo
-        List<ArticleResponse> articleResponseList = articleResponseMapper.toArticleResponseList(articles);
-
-        // Validamos el mapeo
-        assertNotNull(articleResponseList);
-        assertEquals(2, articleResponseList.size());
-        assertEquals("Laptop", articleResponseList.get(0).getName());
-        assertEquals("Smartphone", articleResponseList.get(1).getName());
+        // Assert
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals("Zapatillas Running", responses.get(0).getName());
     }
 
     @Test
-    void testToArticleResponsePagedResult() {
-        // Simulamos un PagedResult con una lista de artículos
-        Article article1 = mock(Article.class);
-        Article article2 = mock(Article.class);
+    void mapCategories_ShouldMapCategoriesCorrectly() {
+        // Arrange
+        when(mockCategory.getId()).thenReturn(1L);
+        when(mockCategory.getNombre()).thenReturn("Deportes");
 
-        when(article1.getId()).thenReturn(1L);
-        when(article1.getName()).thenReturn("Laptop");
-        when(article1.getDescription()).thenReturn("Laptop con 16GB RAM");
-        when(article1.getPrice()).thenReturn(1500.0);
+        // Act
+        List<CategoryResponse> responses = mapper.mapCategories(Collections.singletonList(mockCategory));
 
-        when(article2.getId()).thenReturn(2L);
-        when(article2.getName()).thenReturn("Smartphone");
-        when(article2.getDescription()).thenReturn("Smartphone con cámara 4K");
-        when(article2.getPrice()).thenReturn(800.0);
+        // Assert
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals(1L, responses.get(0).getId());
+        assertEquals("Deportes", responses.get(0).getName());
+        assertNull(responses.get(0).getDescription());
+    }
 
-        List<Article> articles = Arrays.asList(article1, article2);
+    @Test
+    void toArticleResponsePagedResult_ShouldMapPagedResultCorrectly() {
+        // Arrange
+        when(mockBrand.getNombre()).thenReturn("Nike");
+        when(mockCategory.getId()).thenReturn(1L);
+        when(mockCategory.getNombre()).thenReturn("Deportes");
 
-        when(pagedResult.getContent()).thenReturn(articles);
-        when(pagedResult.getPage()).thenReturn(1);
-        when(pagedResult.getSize()).thenReturn(10);
-        when(pagedResult.getTotalElements()).thenReturn(2L);
-        when(pagedResult.getTotalPages()).thenReturn(1);
+        when(mockArticle.getId()).thenReturn(1L);
+        when(mockArticle.getName()).thenReturn("Zapatillas Running");
+        when(mockArticle.getDescription()).thenReturn("Zapatillas para correr");
+        when(mockArticle.getPrice()).thenReturn(99.99);
+        when(mockArticle.getBrand()).thenReturn(mockBrand);
+        when(mockArticle.getCategories()).thenReturn(Arrays.asList(mockCategory));
 
-        // Llamamos al método de mapeo
-        PagedResult<ArticleResponse> articleResponsePagedResult = articleResponseMapper.toArticleResponsePagedResult(pagedResult);
+        List<Article> articles = Collections.singletonList(mockArticle);
+        PagedResult<Article> pagedResult = new PagedResult<>(articles, 0, 10, 1L, 1);
 
-        // Validamos el mapeo
-        assertNotNull(articleResponsePagedResult);
-        assertEquals(2, articleResponsePagedResult.getContent().size());
-        assertEquals(1, articleResponsePagedResult.getPage());
-        assertEquals(10, articleResponsePagedResult.getSize());
-        assertEquals(2L, articleResponsePagedResult.getTotalElements());
-        assertEquals(1, articleResponsePagedResult.getTotalPages());
+        // Act
+        PagedResult<ArticleResponse> response = mapper.toArticleResponsePagedResult(pagedResult);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.getContent().size());
+        assertEquals(0, response.getPage());
+        assertEquals(10, response.getSize());
+        assertEquals(1L, response.getTotalElements());
+        assertEquals(1, response.getTotalPages());
     }
 }

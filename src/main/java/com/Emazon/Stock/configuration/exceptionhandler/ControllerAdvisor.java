@@ -13,7 +13,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class ControllerAdvisor {
         );
 
         return ResponseEntity.badRequest().body(new ExceptionResponse(
-                errors.toString(),
+                Constants.VALIDATION_ERROR_MESSAGE + ": " + errors.toString(),
                 Constants.STATUS_BAD_REQUEST,
                 LocalDateTime.now()));
     }
@@ -38,7 +37,7 @@ public class ControllerAdvisor {
     @ExceptionHandler(CategoryAlreadyExistsDomainException.class)
     public ResponseEntity<Map<String, String>> handleCategoryAlreadyExists(CategoryAlreadyExistsDomainException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put(Constants.RESPONSE_MESSAGE_KEY, ex.getMessage());
+        response.put(Constants.RESPONSE_MESSAGE_KEY, Constants.CATEGORY_ALREADY_EXISTS_EXCEPTION_MESSAGE);
         response.put(Constants.RESPONSE_STATUS_KEY, Constants.STATUS_CONFLICT);
         response.put(Constants.RESPONSE_TIMESTAMP_KEY, LocalDateTime.now().toString());
 
@@ -48,7 +47,7 @@ public class ControllerAdvisor {
     @ExceptionHandler(BrandAlreadyExistsDomainException.class)
     public ResponseEntity<Map<String, String>> handleBrandAlreadyExists(BrandAlreadyExistsDomainException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put(Constants.RESPONSE_MESSAGE_KEY, ex.getMessage());
+        response.put(Constants.RESPONSE_MESSAGE_KEY, Constants.BRAND_ALREADY_EXISTS_EXCEPTION_MESSAGE);
         response.put(Constants.RESPONSE_STATUS_KEY, Constants.STATUS_CONFLICT);
         response.put(Constants.RESPONSE_TIMESTAMP_KEY, LocalDateTime.now().toString());
 
@@ -58,9 +57,9 @@ public class ControllerAdvisor {
     @ExceptionHandler(ArticleAlreadyExistsDomainException.class)
     public ResponseEntity<Map<String, String>> handleArticleAlreadyExists(ArticleAlreadyExistsDomainException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", ex.getMessage());
-        response.put("status", "409 CONFLICT");
-        response.put("timestamp", LocalDateTime.now().toString());
+        response.put(Constants.RESPONSE_MESSAGE_KEY, Constants.ARTICLE_ALREADY_EXISTS_EXCEPTION_MESSAGE);
+        response.put(Constants.RESPONSE_STATUS_KEY, Constants.STATUS_CONFLICT);
+        response.put(Constants.RESPONSE_TIMESTAMP_KEY, LocalDateTime.now().toString());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -68,7 +67,7 @@ public class ControllerAdvisor {
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<ExceptionResponse> handleNoDataFoundException(NoDataFoundException ex) {
         ExceptionResponse response = new ExceptionResponse(
-                ex.getMessage(),
+                Constants.NO_DATA_FOUND_EXCEPTION_MESSAGE,
                 Constants.STATUS_NOT_FOUND,
                 LocalDateTime.now());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -77,7 +76,7 @@ public class ControllerAdvisor {
     @ExceptionHandler(ElementNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleElementNotFoundException(ElementNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionResponse(
-                ex.getMessage(),
+                Constants.ELEMENT_NOT_FOUND_EXCEPTION_MESSAGE,
                 Constants.STATUS_NOT_FOUND,
                 LocalDateTime.now()));
     }
