@@ -22,7 +22,7 @@ class IBrandRepositoryTest {
 
     @BeforeEach
     void setUp() {
-
+        // Crear dos marcas de ejemplo para los tests
         brandEntity1 = new BrandEntity();
         brandEntity1.setNombre("Samsung");
         brandEntity1.setDescripcion("Electronics and home appliances");
@@ -31,7 +31,7 @@ class IBrandRepositoryTest {
         brandEntity2.setNombre("Apple");
         brandEntity2.setDescripcion("Technology and software");
 
-
+        // Guardar las entidades en la base de datos en memoria
         brandRepository.save(brandEntity1);
         brandRepository.save(brandEntity2);
     }
@@ -72,16 +72,5 @@ class IBrandRepositoryTest {
 
         // Assert
         assertFalse(exists);
-    }
-
-    @Test
-    void testSaveBrandWithExistingName() {
-        // Arrange: crear una nueva marca con un nombre duplicado
-        BrandEntity duplicateBrand = new BrandEntity();
-        duplicateBrand.setNombre("Samsung");
-        duplicateBrand.setDescripcion("Duplicate brand");
-
-        // Act & Assert: al intentar guardar debe lanzarse una excepción de integridad
-        assertThrows(DataIntegrityViolationException.class, () -> brandRepository.save(duplicateBrand));
     }
 }

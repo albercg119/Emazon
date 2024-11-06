@@ -1,6 +1,6 @@
 package com.Emazon.Stock.configuration;
 
-public class Constants {
+public final class Constants {
     private Constants() {
         throw new IllegalStateException("Utility class");
     }
@@ -24,4 +24,6 @@ public class Constants {
     public static final String STATUS_BAD_REQUEST = "400 BAD REQUEST";
     public static final String STATUS_NOT_FOUND = "404 NOT FOUND";
     public static final String STATUS_INTERNAL_SERVER_ERROR = "500 INTERNAL SERVER ERROR";
+
+
 }

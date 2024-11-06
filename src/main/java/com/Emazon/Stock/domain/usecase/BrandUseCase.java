@@ -36,19 +36,19 @@ public class BrandUseCase implements IBrandServicePort {
 
     private void validateBrand(Brand brand) {
         if (brand == null) {
-            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NULL_EXCEPTION_MESSAGE);
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NULL_ERROR);
         }
         if (brand.getNombre() == null || brand.getNombre().isEmpty()) {
-            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_NULL_OR_EMPTY_MESSAGE);
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_NULL_OR_EMPTY_ERROR);
         }
-        if (brand.getNombre().length() > 50) {
-            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_LENGTH_MESSAGE);
+        if (brand.getNombre().length() > BrandUseCaseConstants.BRAND_NAME_MAX_LENGTH) {
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_NAME_LENGTH_ERROR);
         }
         if (brand.getDescripcion() == null || brand.getDescripcion().isEmpty()) {
-            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_NULL_OR_EMPTY_MESSAGE);
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_NULL_OR_EMPTY_ERROR);
         }
-        if (brand.getDescripcion().length() > 120) {
-            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_LENGTH_MESSAGE);
+        if (brand.getDescripcion().length() > BrandUseCaseConstants.BRAND_DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException(BrandUseCaseConstants.BRAND_DESCRIPTION_LENGTH_ERROR);
         }
     }
 
@@ -56,7 +56,7 @@ public class BrandUseCase implements IBrandServicePort {
         boolean exists = brandPersistencePort.existsByName(nombre);
 
         if (exists) {
-            throw new BrandAlreadyExistsDomainException(BrandUseCaseConstants.BRAND_ALREADY_EXISTS_MESSAGE);
+            throw new BrandAlreadyExistsDomainException(BrandUseCaseConstants.BRAND_ALREADY_EXISTS_ERROR);
         }
     }
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IBrandRequestMapperTest {
 
@@ -14,21 +14,36 @@ public class IBrandRequestMapperTest {
 
     @BeforeEach
     public void setUp() {
-        // Obtiene una instancia del mapper usando Mappers.getMapper
         brandRequestMapper = Mappers.getMapper(IBrandRequestMapper.class);
     }
 
     @Test
     public void testAddRequestToBrand() {
         // Arrange
-        AddBrandRequest addBrandRequest = new AddBrandRequest("Apple", "Technology and devices");
+        String name = "Apple";
+        String description = "Technology and devices";
+        AddBrandRequest request = new AddBrandRequest(name, description);
 
         // Act
-        Brand brand = brandRequestMapper.addRequestToBrand(addBrandRequest);
+        Brand brand = brandRequestMapper.addRequestToBrand(request);
 
         // Assert
-        assertEquals(null, brand.getId(), "ID should be null as it is ignored");
-        assertEquals("Apple", brand.getNombre(), "Name should be mapped correctly");
-        assertEquals("Technology and devices", brand.getDescripcion(), "Description should be mapped correctly");
+        assertNull(brand.getId(), "ID should be null as it is ignored in mapping");
+        assertEquals(name, brand.getNombre(), "Name should be mapped to nombre");
+        assertEquals(description, brand.getDescripcion(), "Description should be mapped to descripcion");
+    }
+
+    @Test
+    public void testAddRequestToBrandWithNullValues() {
+        // Arrange
+        AddBrandRequest request = new AddBrandRequest(null, null);
+
+        // Act
+        Brand brand = brandRequestMapper.addRequestToBrand(request);
+
+        // Assert
+        assertNull(brand.getId());
+        assertNull(brand.getNombre());
+        assertNull(brand.getDescripcion());
     }
 }

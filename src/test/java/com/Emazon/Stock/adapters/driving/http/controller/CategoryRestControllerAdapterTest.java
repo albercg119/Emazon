@@ -58,10 +58,11 @@ class CategoryRestControllerAdapterTest {
         when(categoryRequestMapper.addRequestToCategory(request)).thenReturn(domainCategory);
 
         // Act
-        ResponseEntity<Void> response = categoryRestControllerAdapter.addCategory(request);
+        ResponseEntity<String> response = categoryRestControllerAdapter.addCategory(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals("Categoría creada exitosamente", response.getBody());
         verify(categoryServicePort, times(1)).saveCategory(domainCategory);
     }
 
@@ -70,7 +71,7 @@ class CategoryRestControllerAdapterTest {
         // Arrange
         int page = 0;
         int size = 10;
-        boolean ascending = true;
+        String sort = "asc";
 
         Category category1 = new Category(1L, "Electronics", "Devices");
         Category category2 = new Category(2L, "Books", "Various books");
@@ -84,25 +85,26 @@ class CategoryRestControllerAdapterTest {
         List<CategoryResponse> categoryResponses = Arrays.asList(categoryResponse1, categoryResponse2);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(categoryResponses, page, size, 2, 1);
 
-        when(categoryServicePort.getPagedCategories(page, size, ascending)).thenReturn(pagedResult);
+        when(categoryServicePort.getPagedCategories(page, size, true)).thenReturn(pagedResult);
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, sort);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(pagedResultResponse, responseEntity.getBody());
-        verify(categoryServicePort, times(1)).getPagedCategories(page, size, ascending);
+        verify(categoryServicePort, times(1)).getPagedCategories(page, size, true);
         verify(categoryResponseMapper, times(1)).toCategoryResponsePagedResult(pagedResult);
     }
 
     @Test
     void getPagedCategories_ShouldReturnEmptyPagedResult_WhenNoCategoriesAvailable() {
         // Arrange
-        int page = 0;
-        int size = 10;
-        boolean ascending = true;
+        Integer page = 0;
+        Integer size = 10;
+        String order = "asc";
+        boolean ascending = order.equalsIgnoreCase("asc");
 
         PagedResult<Category> pagedResult = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
         PagedResult<CategoryResponse> pagedResultResponse = new PagedResult<>(Collections.emptyList(), page, size, 0, 0);
@@ -111,7 +113,7 @@ class CategoryRestControllerAdapterTest {
         when(categoryResponseMapper.toCategoryResponsePagedResult(pagedResult)).thenReturn(pagedResultResponse);
 
         // Act
-        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, ascending);
+        ResponseEntity<PagedResult<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getPagedCategories(page, size, order);
 
         // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -147,15 +149,16 @@ class CategoryRestControllerAdapterTest {
     }
 
     @Test
-    void getAllCategories_ShouldReturnNoContent_WhenNoCategoriesAvailable() {
+    void getAllCategories_ShouldReturnEmptyList_WhenNoCategoriesAvailable() {
         // Arrange
         when(categoryServicePort.getAllCategories()).thenReturn(Collections.emptyList());
+        when(categoryResponseMapper.toCategoryResponseList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
         // Act
         ResponseEntity<List<CategoryResponse>> responseEntity = categoryRestControllerAdapter.getAllCategories();
 
         // Assert
-        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(Collections.emptyList(), responseEntity.getBody());
         verify(categoryServicePort, times(1)).getAllCategories();
         verify(categoryResponseMapper, times(1)).toCategoryResponseList(Collections.emptyList());

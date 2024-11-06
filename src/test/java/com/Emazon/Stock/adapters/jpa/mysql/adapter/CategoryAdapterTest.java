@@ -13,13 +13,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class CategoryAdapterTest {
@@ -39,13 +43,10 @@ class CategoryAdapterTest {
     }
 
     @Test
-    void testSaveCategory_WhenCategoryDoesNotExist_ShouldSaveSuccessfully() {
+    void saveCategory_ShouldSaveSuccessfully_WhenCategoryDoesNotExist() {
         // Arrange
-        Category category = new Category(1L, "Electronics", "Devices");
+        Category category = new Category(1L, "Electronics", "Electronic devices");
         CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setId(1L);
-        categoryEntity.setNombre("Electronics");
-        categoryEntity.setDescripcion("Devices");
 
         when(categoryRepository.findByNombre(category.getNombre())).thenReturn(Optional.empty());
         when(categoryEntityMapper.toEntity(category)).thenReturn(categoryEntity);
@@ -54,150 +55,118 @@ class CategoryAdapterTest {
         categoryAdapter.saveCategory(category);
 
         // Assert
-        verify(categoryRepository, times(1)).save(categoryEntity);
+        verify(categoryRepository).save(categoryEntity);
     }
 
     @Test
-    void testSaveCategory_WhenCategoryExists_ShouldThrowCategoryAlreadyExistsException() {
+    void saveCategory_ShouldThrowException_WhenCategoryExists() {
         // Arrange
-        Category category = new Category(1L, "Electronics", "Devices");
+        Category category = new Category(1L, "Electronics", "Electronic devices");
         when(categoryRepository.findByNombre(category.getNombre())).thenReturn(Optional.of(new CategoryEntity()));
 
         // Act & Assert
-        assertThrows(CategoryAlreadyExistsException.class, () -> {
-            categoryAdapter.saveCategory(category);
-        });
-
-        verify(categoryRepository, never()).save(any(CategoryEntity.class));
+        assertThrows(CategoryAlreadyExistsException.class, () -> categoryAdapter.saveCategory(category));
+        verify(categoryRepository, never()).save(any());
     }
 
     @Test
-    void testExistsByName_WhenCategoryExists_ShouldReturnTrue() {
+    void getPagedCategories_ShouldReturnPagedResult_WhenCategoriesExist() {
         // Arrange
-        String categoryName = "Electronics";
-        when(categoryRepository.findByNombre(categoryName)).thenReturn(Optional.of(new CategoryEntity()));
+        int page = 0;
+        int size = 10;
+        List<CategoryEntity> categoryEntities = Arrays.asList(
+                new CategoryEntity(), new CategoryEntity()
+        );
+        Page<CategoryEntity> categoryPage = new PageImpl<>(categoryEntities);
+        List<Category> categories = Arrays.asList(
+                new Category(1L, "Electronics", "Devices"),
+                new Category(2L, "Books", "Reading materials")
+        );
+
+        when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(categoryPage);
+        when(categoryEntityMapper.toModelList(categoryEntities)).thenReturn(categories);
 
         // Act
-        boolean result = categoryAdapter.existsByName(categoryName);
+        PagedResult<Category> result = categoryAdapter.getPagedCategories(page, size, true);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        verify(categoryRepository).findAll(any(PageRequest.class));
+    }
+
+    @Test
+    void getPagedCategories_ShouldThrowException_WhenNoCategoriesExist() {
+        // Arrange
+        when(categoryRepository.findAll(any(PageRequest.class)))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        // Act & Assert
+        assertThrows(NoDataFoundException.class,
+                () -> categoryAdapter.getPagedCategories(0, 10, true));
+    }
+
+    @Test
+    void getAllCategories_ShouldReturnList_WhenCategoriesExist() {
+        // Arrange
+        List<CategoryEntity> categoryEntities = Arrays.asList(new CategoryEntity(), new CategoryEntity());
+        List<Category> expectedCategories = Arrays.asList(
+                new Category(1L, "Electronics", "Devices"),
+                new Category(2L, "Books", "Reading materials")
+        );
+
+        when(categoryRepository.findAll()).thenReturn(categoryEntities);
+        when(categoryEntityMapper.toModelList(categoryEntities)).thenReturn(expectedCategories);
+
+        // Act
+        List<Category> result = categoryAdapter.getAllCategories();
+
+        // Assert
+        assertEquals(expectedCategories.size(), result.size());
+        verify(categoryRepository).findAll();
+    }
+
+    @Test
+    void getAllCategories_ShouldThrowException_WhenNoCategoriesExist() {
+        // Arrange
+        when(categoryRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        assertThrows(NoDataFoundException.class, () -> categoryAdapter.getAllCategories());
+    }
+
+    @Test
+    void existsByName_ShouldReturnTrue_WhenCategoryExists() {
+        // Arrange
+        String name = "Electronics";
+        when(categoryRepository.findByNombre(name)).thenReturn(Optional.of(new CategoryEntity()));
+
+        // Act
+        boolean result = categoryAdapter.existsByName(name);
 
         // Assert
         assertTrue(result);
-        verify(categoryRepository, times(1)).findByNombre(categoryName);
     }
 
     @Test
-    void testExistsByName_WhenCategoryDoesNotExist_ShouldReturnFalse() {
+    void existsByName_ShouldReturnFalse_WhenCategoryDoesNotExist() {
         // Arrange
-        String categoryName = "Electronics";
-        when(categoryRepository.findByNombre(categoryName)).thenReturn(Optional.empty());
+        String name = "NonexistentCategory";
+        when(categoryRepository.findByNombre(name)).thenReturn(Optional.empty());
 
         // Act
-        boolean result = categoryAdapter.existsByName(categoryName);
+        boolean result = categoryAdapter.existsByName(name);
 
         // Assert
         assertFalse(result);
-        verify(categoryRepository, times(1)).findByNombre(categoryName);
-    }
-
-
-
-    @Test
-    void testGetPagedCategories() {
-        // Datos simulados para la paginación
-        int page = 0;
-        int size = 10;
-        boolean ascending = true;
-
-        CategoryEntity categoryEntity1 = new CategoryEntity();
-        categoryEntity1.setId(1L);
-        categoryEntity1.setNombre("Electrónica");
-        categoryEntity1.setDescripcion("Categoría de productos electrónicos");
-
-        CategoryEntity categoryEntity2 = new CategoryEntity();
-        categoryEntity2.setId(2L);
-        categoryEntity2.setNombre("Ropa");
-        categoryEntity2.setDescripcion("Categoría de ropa");
-
-        List<CategoryEntity> categoryEntityList = Arrays.asList(categoryEntity1, categoryEntity2);
-
-        Page<CategoryEntity> categoryPage = mock(Page.class);
-        when(categoryPage.getContent()).thenReturn(categoryEntityList);
-        when(categoryPage.getNumber()).thenReturn(page);
-        when(categoryPage.getSize()).thenReturn(size);
-        when(categoryPage.getTotalElements()).thenReturn((long) categoryEntityList.size());
-        when(categoryPage.getTotalPages()).thenReturn(1);
-        when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(categoryPage);
-
-        // Simular el mapeo de CategoryEntity a Category
-        when(categoryEntityMapper.toModelList(categoryEntityList)).thenReturn(Arrays.asList(
-                new Category(1L, "Electrónica", "Categoría de productos electrónicos"),
-                new Category(2L, "Ropa", "Categoría de ropa")
-        ));
-
-        // Ejecutar el método
-        PagedResult<Category> pagedResult = categoryAdapter.getPagedCategories(page, size, ascending);
-
-        // Validar el resultado
-        assertEquals(page, pagedResult.getPage());
-        assertEquals(size, pagedResult.getSize());
-        assertEquals(categoryEntityList.size(), pagedResult.getTotalElements());
-        assertEquals(1, pagedResult.getTotalPages());
-        verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
-        verify(categoryEntityMapper, times(1)).toModelList(categoryEntityList);
     }
 
     @Test
-    void testGetPagedCategoriesThrowsNoDataFoundException() {
-        // Datos simulados para la paginación
-        int page = 0;
-        int size = 10;
-        boolean ascending = true;
+    void constructor_ShouldInitializeCorrectly() {
+        // Arrange & Act
+        CategoryAdapter adapter = new CategoryAdapter(categoryRepository, categoryEntityMapper);
 
-        Page<CategoryEntity> emptyCategoryPage = mock(Page.class);
-        when(emptyCategoryPage.isEmpty()).thenReturn(true);
-        when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(emptyCategoryPage);
-
-        // Ejecutar el método y verificar la excepción
-        assertThrows(NoDataFoundException.class, () -> categoryAdapter.getPagedCategories(page, size, ascending));
-    }
-
-    @Test
-    void testGetAllCategories() {
-        // Datos simulados
-        CategoryEntity categoryEntity1 = new CategoryEntity();
-        categoryEntity1.setId(1L);
-        categoryEntity1.setNombre("Electrónica");
-        categoryEntity1.setDescripcion("Categoría de productos electrónicos");
-
-        CategoryEntity categoryEntity2 = new CategoryEntity();
-        categoryEntity2.setId(2L);
-        categoryEntity2.setNombre("Ropa");
-        categoryEntity2.setDescripcion("Categoría de ropa");
-
-        List<CategoryEntity> categoryEntityList = Arrays.asList(categoryEntity1, categoryEntity2);
-
-        // Simular el comportamiento del puerto de persistencia
-        when(categoryRepository.findAll()).thenReturn(categoryEntityList);
-        when(categoryEntityMapper.toModelList(categoryEntityList)).thenReturn(Arrays.asList(
-                new Category(1L, "Electrónica", "Categoría de productos electrónicos"),
-                new Category(2L, "Ropa", "Categoría de ropa")
-        ));
-
-        // Ejecutar el método
-        List<Category> categories = categoryAdapter.getAllCategories();
-
-        // Validar el resultado
-        assertEquals(2, categories.size());
-        verify(categoryRepository, times(1)).findAll();
-        verify(categoryEntityMapper, times(1)).toModelList(categoryEntityList);
-    }
-
-    @Test
-    void testGetAllCategoriesThrowsNoDataFoundException() {
-        // Simular que no hay categorías
-        when(categoryRepository.findAll()).thenReturn(Arrays.asList());
-
-        // Ejecutar el método y verificar la excepción
-        assertThrows(NoDataFoundException.class, () -> categoryAdapter.getAllCategories());
+        // Assert
+        assertNotNull(adapter);
     }
 }

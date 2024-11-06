@@ -41,13 +41,13 @@ public class CategoryUseCase implements ICategoryServicePort {
         if (category.getNombre() == null || category.getNombre().isEmpty()) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_NULL_OR_EMPTY_MESSAGE);
         }
-        if (category.getNombre().length() > 50) {
+        if (category.getNombre().length() > CategoryUseCaseConstants.MAX_NAME_LENGTH) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_LENGTH_MESSAGE);
         }
         if (category.getDescripcion() == null || category.getDescripcion().isEmpty()) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_NULL_OR_EMPTY_MESSAGE);
         }
-        if (category.getDescripcion().length() > 90) {
+        if (category.getDescripcion().length() > CategoryUseCaseConstants.MAX_DESCRIPTION_LENGTH) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_LENGTH_MESSAGE);
         }
     }

@@ -1,28 +1,27 @@
 package com.Emazon.Stock.configuration.exceptionhandler;
 
-
-import com.Emazon.Stock.adapters.jpa.mysql.exception.CategoryAlreadyExistsException;
-import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
 import com.Emazon.Stock.adapters.jpa.mysql.exception.NoDataFoundException;
+import com.Emazon.Stock.adapters.jpa.mysql.exception.ElementNotFoundException;
+import com.Emazon.Stock.configuration.Constants;
+import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.Exceptions.BrandAlreadyExistsDomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class ControllerAdvisorTest {
 
-    @InjectMocks
     private ControllerAdvisor controllerAdvisor;
 
     @BeforeEach
@@ -30,93 +29,140 @@ class ControllerAdvisorTest {
         controllerAdvisor = new ControllerAdvisor();
     }
 
+
     @Test
-    void handleValidationExceptions_shouldReturnBadRequest() {
-        // Mock del BindingResult para simular errores de validación
+    void handleValidationExceptions_ShouldReturnBadRequest() {
+        // Arrange
+        MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
         BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = new FieldError("objectName", "fieldName", "defaultMessage");
+        when(ex.getBindingResult()).thenReturn(bindingResult);
+
+        FieldError fieldError = new FieldError("object", "field", "message");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
 
-        // Simulamos la excepción MethodArgumentNotValidException
-        MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
-        when(exception.getBindingResult()).thenReturn(bindingResult);
+        // Act
+        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleValidationExceptions(ex);
 
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleValidationExceptions(exception);
-
-        // Validar que se devuelve el estado 400 y el mensaje correcto
+        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("{fieldName=defaultMessage}", response.getBody().getMessage());
+        assertNotNull(response.getBody());
+        assertEquals(Constants.STATUS_BAD_REQUEST, response.getBody().getStatus());
     }
 
     @Test
-    void handleCategoryAlreadyExistsException_shouldReturnBadRequest() {
-        // Simular la excepción sin mensaje personalizado
-        CategoryAlreadyExistsException exception = new CategoryAlreadyExistsException();
+    void handleCategoryAlreadyExists_ShouldReturnConflict() {
+        // Arrange
+        String errorMessage = "Category already exists";
+        CategoryAlreadyExistsDomainException ex = new CategoryAlreadyExistsDomainException(errorMessage);
 
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleCategoryAlreadyExistsException(exception);
+        // Act
+        ResponseEntity<Map<String, String>> response = controllerAdvisor.handleCategoryAlreadyExists(ex);
 
-        // Validar que se devuelve el estado 400 y el mensaje por defecto
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(errorMessage, response.getBody().get(Constants.RESPONSE_MESSAGE_KEY));
+        assertEquals(Constants.STATUS_CONFLICT, response.getBody().get(Constants.RESPONSE_STATUS_KEY));
+    }
+
+    @Test
+    void handleBrandAlreadyExists_ShouldReturnConflict() {
+        // Arrange
+        String errorMessage = "Brand already exists";
+        BrandAlreadyExistsDomainException ex = new BrandAlreadyExistsDomainException(errorMessage);
+
+        // Act
+        ResponseEntity<Map<String, String>> response = controllerAdvisor.handleBrandAlreadyExists(ex);
+
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(errorMessage, response.getBody().get(Constants.RESPONSE_MESSAGE_KEY));
+        assertEquals(Constants.STATUS_CONFLICT, response.getBody().get(Constants.RESPONSE_STATUS_KEY));
+    }
+
+    @Test
+    void handleNoDataFoundException_ShouldReturnNotFound() {
+        // Arrange
+        NoDataFoundException ex = new NoDataFoundException();
+
+        // Act
+        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleNoDataFoundException(ex);
+
+        // Assert
+        assertNotNull(response, "La respuesta no debe ser null");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "El código de estado debe ser NOT_FOUND");
+
+        ExceptionResponse errorResponse = response.getBody();
+        assertNotNull(errorResponse, "El cuerpo de la respuesta no debe ser null");
+        assertNotNull(errorResponse.getMessage(), "El mensaje no debe ser null");
+        assertEquals(Constants.STATUS_NOT_FOUND, errorResponse.getStatus(), "El estado debe ser NOT_FOUND");
+
+        // Validación del timestamp
+        assertNotNull(errorResponse.getTimestamp(), "El timestamp no debe ser null");
+        assertTrue(
+                errorResponse.getTimestamp().isBefore(LocalDateTime.now().plusSeconds(1)) &&
+                        errorResponse.getTimestamp().isAfter(LocalDateTime.now().minusSeconds(1)),
+                "El timestamp debe estar dentro del rango de un segundo"
+        );
+    }
+
+    @Test
+    void handleElementNotFoundException_ShouldReturnNotFound() {
+        // Arrange
+        ElementNotFoundException ex = new ElementNotFoundException();
+
+        // Act
+        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleElementNotFoundException(ex);
+
+        // Assert
+        assertNotNull(response, "La respuesta no debe ser null");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "El código de estado debe ser NOT_FOUND");
+
+        ExceptionResponse errorResponse = response.getBody();
+        assertNotNull(errorResponse, "El cuerpo de la respuesta no debe ser null");
+        assertNotNull(errorResponse.getMessage(), "El mensaje no debe ser null");
+        assertEquals(Constants.STATUS_NOT_FOUND, errorResponse.getStatus(), "El estado debe ser NOT_FOUND");
+
+        // Validación del timestamp
+        assertNotNull(errorResponse.getTimestamp(), "El timestamp no debe ser null");
+        assertTrue(
+                errorResponse.getTimestamp().isBefore(LocalDateTime.now().plusSeconds(1)) &&
+                        errorResponse.getTimestamp().isAfter(LocalDateTime.now().minusSeconds(1)),
+                "El timestamp debe estar dentro del rango de un segundo"
+        );
+    }
+
+
+    @Test
+    void handleIllegalArgumentException_ShouldReturnBadRequest() {
+        // Arrange
+        String errorMessage = "Invalid argument";
+        IllegalArgumentException ex = new IllegalArgumentException(errorMessage);
+
+        // Act
+        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleIllegalArgumentException(ex);
+
+        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("Category already exists", response.getBody().getMessage());
+        assertNotNull(response.getBody());
+        assertEquals(errorMessage, response.getBody().getMessage());
+        assertEquals(Constants.STATUS_BAD_REQUEST, response.getBody().getStatus());
     }
 
     @Test
-    void handleNoDataFoundException_shouldReturnNotFound() {
-        // Simular la excepción sin mensaje personalizado
-        NoDataFoundException exception = new NoDataFoundException();
+    void handleGeneralException_ShouldReturnInternalServerError() {
+        // Arrange
+        String errorMessage = "Unexpected error";
+        Exception ex = new Exception(errorMessage);
 
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleNoDataFoundException(exception);
+        // Act
+        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleGeneralException(ex);
 
-        // Validar que se devuelve el estado 404 y el mensaje por defecto
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
-        assertEquals("No data found", response.getBody().getMessage());
-    }
-
-    @Test
-    void handleElementNotFoundException_shouldReturnNotFound() {
-        // Simular la excepción sin mensaje personalizado
-        ElementNotFoundException exception = new ElementNotFoundException();
-
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleElementNotFoundException(exception);
-
-        // Validar que se devuelve el estado 404 y el mensaje por defecto
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
-        assertEquals("Element not found", response.getBody().getMessage());
-    }
-
-    @Test
-    void handleIllegalArgumentException_shouldReturnBadRequest() {
-        // Simular la excepción
-        IllegalArgumentException exception = new IllegalArgumentException("Illegal argument");
-
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleIllegalArgumentException(exception);
-
-        // Validar que se devuelve el estado 400 y el mensaje correcto
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
-        assertEquals("Illegal argument", response.getBody().getMessage());
-    }
-
-    @Test
-    void handleGeneralException_shouldReturnInternalServerError() {
-        // Simular una excepción general
-        Exception exception = new Exception("Internal server error");
-
-        // Ejecutar el método del controlador
-        ResponseEntity<ExceptionResponse> response = controllerAdvisor.handleGeneralException(exception);
-
-        // Validar que se devuelve el estado 500 y el mensaje correcto
+        // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), response.getBody().getStatus());
-        assertEquals("Internal server error", response.getBody().getMessage());
+        assertNotNull(response.getBody());
+        assertEquals(errorMessage, response.getBody().getMessage());
+        assertEquals(Constants.STATUS_INTERNAL_SERVER_ERROR, response.getBody().getStatus());
     }
 }

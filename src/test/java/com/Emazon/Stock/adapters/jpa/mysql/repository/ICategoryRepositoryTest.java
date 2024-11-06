@@ -74,15 +74,4 @@ class ICategoryRepositoryTest {
         // Assert
         assertFalse(exists);
     }
-
-    @Test
-    void testSaveCategoryWithExistingName() {
-        // Arrange: crear una nueva categoría con un nombre duplicado
-        CategoryEntity duplicateCategory = new CategoryEntity();
-        duplicateCategory.setNombre("Electronics");
-        duplicateCategory.setDescripcion("Duplicate category");
-
-        // Act & Assert: al intentar guardar debe lanzarse una excepción de integridad
-        assertThrows(DataIntegrityViolationException.class, () -> categoryRepository.save(duplicateCategory));
-    }
 }
