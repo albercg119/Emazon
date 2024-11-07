@@ -1,15 +1,18 @@
 package com.Emazon.Stock.domain.usecase;
 
+import com.Emazon.Stock.domain.utilities.Exceptions.CategoryAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import com.Emazon.Stock.domain.model.Category;
 import com.Emazon.Stock.domain.spi.ICategoryPersistencePort;
-import com.Emazon.Stock.domain.utilities.PagedResult;
+import com.Emazon.Stock.domain.utilities.constants.CategoryUseCaseConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,155 +33,153 @@ class CategoryUseCaseTest {
 
     @Test
     void saveCategory_ShouldSaveCategory_WhenCategoryIsValid() {
-        // Arrange
         Category validCategory = new Category(1L, "Electronics", "Devices and gadgets");
-
-        // Mock behavior for checking unique name
         when(categoryPersistencePort.existsByName(validCategory.getNombre())).thenReturn(false);
 
-        // Act
         assertDoesNotThrow(() -> categoryUseCase.saveCategory(validCategory));
-
-        // Assert
         verify(categoryPersistencePort, times(1)).saveCategory(validCategory);
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryIsNull() {
-        // Arrange & Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(null));
-        assertEquals("Category cannot be null", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(null));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_NULL_EXCEPTION_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameIsNull() {
-        // Arrange
         Category categoryWithNullName = new Category(1L, null, "Description");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithNullName));
-        assertEquals("Category name cannot be null or empty", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithNullName));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_NAME_NULL_OR_EMPTY_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameIsEmpty() {
-        // Arrange
         Category categoryWithEmptyName = new Category(1L, "", "Description");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithEmptyName));
-        assertEquals("Category name cannot be null or empty", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithEmptyName));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_NAME_NULL_OR_EMPTY_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryDescriptionIsNull() {
-        // Arrange
         Category categoryWithNullDescription = new Category(1L, "Electronics", null);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithNullDescription));
-        assertEquals("Category description cannot be null or empty", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithNullDescription));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_NULL_OR_EMPTY_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryDescriptionIsEmpty() {
-        // Arrange
         Category categoryWithEmptyDescription = new Category(1L, "Electronics", "");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithEmptyDescription));
-        assertEquals("Category description cannot be null or empty", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithEmptyDescription));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_NULL_OR_EMPTY_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameExceedsMaxLength() {
-        // Arrange
-        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters";
+        String longName = "ThisCategoryNameIsDefinitelyLongerThanFiftyCharacters!";
         Category categoryWithLongName = new Category(1L, longName, "Valid description");
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithLongName));
-        assertEquals("Category name cannot exceed 50 characters", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithLongName));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_NAME_LENGTH_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryDescriptionExceedsMaxLength() {
-        // Arrange
-        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!";
+        String longDescription = "This description is definitely longer than ninety characters. It's far too long for our current model!!!!!";
         Category categoryWithLongDescription = new Category(1L, "Electronics", longDescription);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> categoryUseCase.saveCategory(categoryWithLongDescription));
-        assertEquals("Category description cannot exceed 90 characters", exception.getMessage());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> categoryUseCase.saveCategory(categoryWithLongDescription));
+        assertEquals(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_LENGTH_MESSAGE, exception.getMessage());
     }
 
     @Test
     void saveCategory_ShouldThrowException_WhenCategoryNameIsNotUnique() {
-        // Arrange
         Category categoryWithNonUniqueName = new Category(null, "Electronics", "Valid description");
-
-
         when(categoryPersistencePort.existsByName("Electronics")).thenReturn(true);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> categoryUseCase.saveCategory(categoryWithNonUniqueName));
+        CategoryAlreadyExistsDomainException exception = assertThrows(
+                CategoryAlreadyExistsDomainException.class,
+                () -> categoryUseCase.saveCategory(categoryWithNonUniqueName)
+        );
 
-
-        assertEquals("Category name must be unique", exception.getMessage());
-
-
+        assertEquals(CategoryUseCaseConstants.CATEGORY_ALREADY_EXISTS_MESSAGE, exception.getMessage());
         verify(categoryPersistencePort, times(1)).existsByName("Electronics");
     }
 
-    public void testGetPagedCategories() {
-        // Arrange: Simulamos una lista de categorías y una página
-        List<Category> categoryList = Arrays.asList(
-                new Category(1L, "Category 1", "Description 1"),
-                new Category(2L, "Category 2", "Description 2")
+    @Test
+    void getAllCategories_ShouldReturnListOfCategories_WhenCategoriesExist() {
+        List<Category> expectedCategories = Arrays.asList(
+                new Category(1L, "Electronics", "Electronic devices"),
+                new Category(2L, "Books", "Reading materials")
         );
+        when(categoryPersistencePort.getAllCategories()).thenReturn(expectedCategories);
 
-        PagedResult<Category> pagedResult = new PagedResult<>(
-                categoryList, 0, 10, 2L, 1 // Parametros esperados por el constructor
+        List<Category> result = categoryUseCase.getAllCategories();
+
+        assertEquals(expectedCategories, result);
+        verify(categoryPersistencePort, times(1)).getAllCategories();
+    }
+
+    @Test
+    void getAllCategories_ShouldReturnEmptyList_WhenNoCategoriesExist() {
+        when(categoryPersistencePort.getAllCategories()).thenReturn(Collections.emptyList());
+
+        List<Category> result = categoryUseCase.getAllCategories();
+
+        assertTrue(result.isEmpty());
+        verify(categoryPersistencePort, times(1)).getAllCategories();
+    }
+
+    @Test
+    void getPagedCategories_ShouldReturnPagedResult_WhenCategoriesExist() {
+        List<Category> categories = Arrays.asList(
+                new Category(1L, "Electronics", "Electronic devices"),
+                new Category(2L, "Books", "Reading materials")
         );
+        PagedResult<Category> expectedResult = new PagedResult<>(
+                categories,
+                0,
+                10,
+                2L,
+                1
+        );
+        when(categoryPersistencePort.getPagedCategories(0, 10, true))
+                .thenReturn(expectedResult);
 
-        // Simulamos el comportamiento del puerto de persistencia
-        when(categoryPersistencePort.getPagedCategories(0, 10, true)).thenReturn(pagedResult);
-
-        // Act: Ejecutamos el método bajo prueba
         PagedResult<Category> result = categoryUseCase.getPagedCategories(0, 10, true);
 
-        // Assert: Comprobamos que el resultado es el esperado
-        assertEquals(2, result.getContent().size());
-        assertEquals("Category 1", result.getContent().get(0).getNombre());
-        assertEquals(1, result.getTotalPages());
-
-        // Verificamos que el método fue llamado una vez con los parámetros correctos
+        assertEquals(expectedResult.getContent(), result.getContent());
+        assertEquals(expectedResult.getPage(), result.getPage());
+        assertEquals(expectedResult.getSize(), result.getSize());
+        assertEquals(expectedResult.getTotalElements(), result.getTotalElements());
+        assertEquals(expectedResult.getTotalPages(), result.getTotalPages());
         verify(categoryPersistencePort, times(1)).getPagedCategories(0, 10, true);
     }
 
-
     @Test
-    void testGetAllCategories() {
-        // Arrange
-        Category category1 = new Category(1L, "Category1", "Description1");
-        Category category2 = new Category(2L, "Category2", "Description2");
+    void getPagedCategories_ShouldReturnEmptyPagedResult_WhenNoCategoriesExist() {
+        PagedResult<Category> expectedResult = new PagedResult<>(
+                new ArrayList<>(),
+                0,
+                10,
+                0L,
+                0
+        );
+        when(categoryPersistencePort.getPagedCategories(0, 10, true))
+                .thenReturn(expectedResult);
 
-        List<Category> categories = Arrays.asList(category1, category2);
+        PagedResult<Category> result = categoryUseCase.getPagedCategories(0, 10, true);
 
-        // Mocking behavior
-        when(categoryPersistencePort.getAllCategories()).thenReturn(categories);
-
-        // Act
-        List<Category> result = categoryUseCase.getAllCategories();
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Category1", result.get(0).getNombre());
-        assertEquals("Category2", result.get(1).getNombre());
-
-        // Verify that the persistence port method was called
-        verify(categoryPersistencePort, times(1)).getAllCategories();
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getPage());
+        assertEquals(10, result.getSize());
+        assertEquals(0L, result.getTotalElements());
+        assertEquals(0, result.getTotalPages());
+        verify(categoryPersistencePort, times(1)).getPagedCategories(0, 10, true);
     }
 }

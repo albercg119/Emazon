@@ -2,12 +2,14 @@ package com.Emazon.Stock.adapters.driving.http.controller;
 
 import com.Emazon.Stock.adapters.driving.http.controller.ArticleRestControllerAdapter;
 import com.Emazon.Stock.adapters.driving.http.dto.request.AddArticleRequest;
+import com.Emazon.Stock.adapters.driving.http.dto.response.ArticleResponse;
 import com.Emazon.Stock.adapters.driving.http.mapper.IArticleRequestMapper;
 import com.Emazon.Stock.adapters.driving.http.mapper.IArticleResponseMapper;
 import com.Emazon.Stock.domain.api.IArticleServicePort;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import com.Emazon.Stock.domain.model.Article;
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -79,5 +81,30 @@ class ArticleRestControllerAdapterTest {
         });
 
         assertEquals("Conflict", exception.getMessage());
+    }
+
+    @Test
+    void testGetPagedArticles_successfulRetrieval() {
+        // Arrange
+        Integer page = 0;
+        Integer size = 10;
+        String sortBy = "name";
+        boolean ascending = true;
+
+        PagedResult<Article> pagedArticles = mock(PagedResult.class);
+        PagedResult<ArticleResponse> expectedResponse = mock(PagedResult.class);
+
+        when(articleService.getPagedArticles(page, size, sortBy, ascending)).thenReturn(pagedArticles);
+        when(articleResponseMapper.toArticleResponsePagedResult(pagedArticles)).thenReturn(expectedResponse);
+
+        // Act
+        ResponseEntity<PagedResult<ArticleResponse>> response =
+                articleRestControllerAdapter.getPagedArticles(page, size, sortBy, ascending);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedResponse, response.getBody());
+        verify(articleService).getPagedArticles(page, size, sortBy, ascending);
+        verify(articleResponseMapper).toArticleResponsePagedResult(pagedArticles);
     }
 }

@@ -1,9 +1,6 @@
 package com.Emazon.Stock.adapters.driving.http.controller;
 
 import com.Emazon.Stock.adapters.utilities.ArticleControllerConstants;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import com.Emazon.Stock.domain.api.IArticleServicePort;
 import com.Emazon.Stock.domain.api.ICategoryServicePort;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
@@ -14,8 +11,17 @@ import com.Emazon.Stock.adapters.driving.http.dto.response.ArticleResponse;
 import com.Emazon.Stock.domain.model.Article;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -60,6 +66,7 @@ public class ArticleRestControllerAdapter {
                 .body(ArticleControllerConstants.ARTICLE_CREATED_MESSAGE);
     }
 
+    @GetMapping("/paged")
     @Operation(summary = ArticleControllerConstants.OPERATION_SUMMARY_GET_PAGED_ARTICLES,
             description = ArticleControllerConstants.OPERATION_DESCRIPTION_GET_PAGED_ARTICLES)
     @ApiResponses(value = {
@@ -70,12 +77,20 @@ public class ArticleRestControllerAdapter {
             @ApiResponse(responseCode = ArticleControllerConstants.RESPONSE_CODE_404,
                     description = ArticleControllerConstants.RESPONSE_CODE_404_DESCRIPTION)
     })
-    @GetMapping("/paged")
     public ResponseEntity<PagedResult<ArticleResponse>> getPagedArticles(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size,
-            @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
-            @RequestParam(value = "ascending", defaultValue = "true") boolean ascending) {
+            @Parameter(description = ArticleControllerConstants.PARAM_PAGE_DESCRIPTION)
+            @RequestParam(value = ArticleControllerConstants.PAGE_PARAM,
+                    defaultValue = ArticleControllerConstants.DEFAULT_PAGE) Integer page,
+            @Parameter(description = ArticleControllerConstants.PARAM_SIZE_DESCRIPTION)
+            @RequestParam(value = ArticleControllerConstants.SIZE_PARAM,
+                    defaultValue = ArticleControllerConstants.DEFAULT_SIZE) Integer size,
+            @Parameter(description = ArticleControllerConstants.PARAM_SORT_BY_DESCRIPTION)
+            @RequestParam(value = ArticleControllerConstants.SORT_BY_PARAM,
+                    defaultValue = ArticleControllerConstants.DEFAULT_SORT_BY) String sortBy,
+            @Parameter(description = ArticleControllerConstants.PARAM_ASCENDING_DESCRIPTION)
+            @RequestParam(value = ArticleControllerConstants.ASCENDING_PARAM,
+                    defaultValue = ArticleControllerConstants.DEFAULT_SORT_DIRECTION) boolean ascending) {
+
         PagedResult<Article> pagedArticles = articleService.getPagedArticles(page, size, sortBy, ascending);
         PagedResult<ArticleResponse> response = articleResponseMapper.toArticleResponsePagedResult(pagedArticles);
         return ResponseEntity.ok(response);

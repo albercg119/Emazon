@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface IArticleRequestMapper {
 
-
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "categories", source = "categoryIds", qualifiedByName = "mapCategoryIds")
     @Mapping(target = "brand", source = "brandId", qualifiedByName = "mapBrandId")
     Article addRequestToArticle(AddArticleRequest request,

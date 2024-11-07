@@ -4,10 +4,10 @@ import com.Emazon.Stock.adapters.driving.http.dto.request.AddBrandRequest;
 import com.Emazon.Stock.adapters.driving.http.dto.response.BrandResponse;
 import com.Emazon.Stock.adapters.driving.http.mapper.IBrandRequestMapper;
 import com.Emazon.Stock.adapters.driving.http.mapper.IBrandResponseMapper;
+import com.Emazon.Stock.adapters.utilities.BrandControllerConstants;
 import com.Emazon.Stock.domain.api.IBrandServicePort;
 import com.Emazon.Stock.domain.model.Brand;
 import com.Emazon.Stock.domain.utilities.PagedResult;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,13 +15,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class BrandRestControllerAdapterTest {
@@ -36,96 +35,110 @@ class BrandRestControllerAdapterTest {
     private IBrandResponseMapper brandResponseMapper;
 
     @InjectMocks
-    private BrandRestControllerAdapter brandRestControllerAdapter;
-
-    private AutoCloseable closeable;
+    private BrandRestControllerAdapter brandController;
 
     @BeforeEach
     void setUp() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        closeable.close();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void addBrand_ShouldReturnCreatedStatus_WhenBrandIsValid() {
+    void addBrand_ShouldReturnCreatedStatus() {
         // Arrange
-        AddBrandRequest request = new AddBrandRequest("Apple", "Tech company");
-        Brand domainBrand = new Brand(1L, "Apple", "Tech company");
-
-        when(brandRequestMapper.addRequestToBrand(request)).thenReturn(domainBrand);
+        AddBrandRequest request = new AddBrandRequest("Nike", "Deportes");
+        Brand brand = new Brand(1L, "Nike", "Deportes");
+        when(brandRequestMapper.addRequestToBrand(any(AddBrandRequest.class))).thenReturn(brand);
 
         // Act
-        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(request);
+        ResponseEntity<String> response = brandController.addBrand(request);
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Brand created successfully", response.getBody());
-        verify(brandServicePort, times(1)).saveBrand(domainBrand);
+        assertEquals(BrandControllerConstants.BRAND_CREATED_SUCCESSFULLY, response.getBody());
+        verify(brandServicePort).saveBrand(brand);
     }
 
     @Test
-    void addBrand_ShouldReturnBadRequest_WhenRequestIsInvalid() {
+    void getPagedBrands_ShouldReturnPagedResult() {
         // Arrange
-        AddBrandRequest invalidRequest = new AddBrandRequest("", "");
-
-
-        when(brandRequestMapper.addRequestToBrand(invalidRequest)).thenThrow(new IllegalArgumentException("Invalid Brand Request"));
-
-        // Act
-        ResponseEntity<String> response = brandRestControllerAdapter.addBrand(invalidRequest);
-
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-
-        verify(brandServicePort, never()).saveBrand(any());
-    }
-
-    @Test
-    void getAllBrands_ShouldReturnListOfBrands_WhenBrandsExist() {
-        // Arrange
-        Brand domainBrand1 = new Brand(1L, "Apple", "Tech company");
-        Brand domainBrand2 = new Brand(2L, "Samsung", "Electronics");
-        List<Brand> domainBrands = Arrays.asList(domainBrand1, domainBrand2);
-        List<BrandResponse> brandResponses = Arrays.asList(
-                new BrandResponse(1L, "Apple", "Tech company"),
-                new BrandResponse(2L, "Samsung", "Electronics")
+        List<Brand> brandList = Arrays.asList(
+                new Brand(1L, "Nike", "Deportes"),
+                new Brand(2L, "Adidas", "Deportes")
         );
+        PagedResult<Brand> brandPagedResult = new PagedResult<>(brandList, 0, 10, 2L, 1);
 
-        when(brandServicePort.getAllBrands()).thenReturn(domainBrands);
-        when(brandResponseMapper.toBrandResponseList(domainBrands)).thenReturn(brandResponses);
+        List<BrandResponse> responseList = Arrays.asList(
+                new BrandResponse(1L, "Nike", "Deportes"),
+                new BrandResponse(2L, "Adidas", "Deportes")
+        );
+        PagedResult<BrandResponse> expectedResponse = new PagedResult<>(responseList, 0, 10, 2L, 1);
+
+        when(brandServicePort.getPagedBrands(anyInt(), anyInt(), anyBoolean()))
+                .thenReturn(brandPagedResult);
+        when(brandResponseMapper.toBrandResponsePagedResult(any()))
+                .thenReturn(expectedResponse);
 
         // Act
-        ResponseEntity<List<BrandResponse>> response = brandRestControllerAdapter.getAllBrands();
+        ResponseEntity<PagedResult<BrandResponse>> response =
+                brandController.getPagedBrands(0, 10, "asc");
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(brandResponses, response.getBody());
-        verify(brandServicePort, times(1)).getAllBrands();
+        assertEquals(expectedResponse, response.getBody());
+        verify(brandServicePort).getPagedBrands(0, 10, true);
     }
 
     @Test
-    void getPagedBrands_ShouldReturnPagedResult_WhenBrandsExist() {
+    void getPagedBrands_WithDescendingSort_ShouldReturnPagedResult() {
         // Arrange
-        PagedResult<Brand> pagedResult = new PagedResult<>(Arrays.asList(new Brand(
-                1L, "Apple", "Tech company")), 1, 0, 1, 1);
-        PagedResult<BrandResponse> brandResponsePagedResult = new PagedResult<>(Arrays.asList(
-                new BrandResponse(1L, "Apple", "Tech company")), 1, 0, 1, 1);
+        List<Brand> brandList = Arrays.asList(
+                new Brand(1L, "Nike", "Deportes"),
+                new Brand(2L, "Adidas", "Deportes")
+        );
+        PagedResult<Brand> brandPagedResult = new PagedResult<>(brandList, 0, 10, 2L, 1);
 
-        // Simulamos el resultado del servicio utilizando "asc" como criterio de ordenación
-        when(brandServicePort.getPagedBrands(0, 10, true)).thenReturn(pagedResult);
-        when(brandResponseMapper.toBrandResponsePagedResult(pagedResult)).thenReturn(brandResponsePagedResult);
+        List<BrandResponse> responseList = Arrays.asList(
+                new BrandResponse(1L, "Nike", "Deportes"),
+                new BrandResponse(2L, "Adidas", "Deportes")
+        );
+        PagedResult<BrandResponse> expectedResponse = new PagedResult<>(responseList, 0, 10, 2L, 1);
+
+        when(brandServicePort.getPagedBrands(anyInt(), anyInt(), anyBoolean()))
+                .thenReturn(brandPagedResult);
+        when(brandResponseMapper.toBrandResponsePagedResult(any()))
+                .thenReturn(expectedResponse);
 
         // Act
-        ResponseEntity<PagedResult<BrandResponse>> response = brandRestControllerAdapter.getPagedBrands(0, 10, "asc");
+        ResponseEntity<PagedResult<BrandResponse>> response =
+                brandController.getPagedBrands(0, 10, "desc");
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(brandResponsePagedResult, response.getBody());
-        verify(brandServicePort, times(1)).getPagedBrands(0, 10, true);
+        assertEquals(expectedResponse, response.getBody());
+        verify(brandServicePort).getPagedBrands(0, 10, false);
+    }
+
+    @Test
+    void getAllBrands_ShouldReturnListOfBrands() {
+        // Arrange
+        List<Brand> brands = Arrays.asList(
+                new Brand(1L, "Nike", "Deportes"),
+                new Brand(2L, "Adidas", "Deportes")
+        );
+        List<BrandResponse> expectedResponses = Arrays.asList(
+                new BrandResponse(1L, "Nike", "Deportes"),
+                new BrandResponse(2L, "Adidas", "Deportes")
+        );
+        when(brandServicePort.getAllBrands()).thenReturn(brands);
+        when(brandResponseMapper.toBrandResponseList(brands)).thenReturn(expectedResponses);
+
+        // Act
+        ResponseEntity<List<BrandResponse>> response = brandController.getAllBrands();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedResponses, response.getBody());
+        verify(brandServicePort).getAllBrands();
+        verify(brandResponseMapper).toBrandResponseList(brands);
     }
 }

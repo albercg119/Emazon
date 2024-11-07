@@ -29,12 +29,4 @@ public class CategoryResponse {
         this.name = name;
         this.description = description;
     }
-
-
-    public static List<CategoryResponse> mapCategories(List<Category> categories) {
-        return categories.stream()
-                .sorted(Comparator.comparing(Category::getNombre))
-                .map(category -> new CategoryResponse(category.getId(), category.getNombre(), null))  // Constructor con descripción
-                .collect(Collectors.toList());
-    }
 }

@@ -10,21 +10,28 @@ import java.util.List;
 
 public class AddArticleRequest {
 
+
     @NotNull(message = AddArticleRequestConstants.NAME_NOT_NULL_MESSAGE)
     @NotBlank(message = AddArticleRequestConstants.NAME_NOT_BLANK_MESSAGE)
-    @Size(min = 1, max = 50, message = AddArticleRequestConstants.NAME_SIZE_MESSAGE)
+    @Size(min = AddArticleRequestConstants.NAME_MIN_LENGTH,
+            max = AddArticleRequestConstants.NAME_MAX_LENGTH,
+            message = AddArticleRequestConstants.NAME_SIZE_MESSAGE)
     private String name;
 
     @NotNull(message = AddArticleRequestConstants.DESCRIPTION_NOT_NULL_MESSAGE)
     @NotBlank(message = AddArticleRequestConstants.DESCRIPTION_NOT_BLANK_MESSAGE)
-    @Size(min = 1, max = 90, message = AddArticleRequestConstants.DESCRIPTION_SIZE_MESSAGE)
+    @Size(min = AddArticleRequestConstants.DESCRIPTION_MIN_LENGTH,
+            max = AddArticleRequestConstants.DESCRIPTION_MAX_LENGTH,
+            message = AddArticleRequestConstants.DESCRIPTION_SIZE_MESSAGE)
     private String description;
 
     @NotNull(message = AddArticleRequestConstants.STOCK_NOT_NULL_MESSAGE)
     private Integer stockQuantity;
 
     @NotNull(message = AddArticleRequestConstants.PRICE_NOT_NULL_MESSAGE)
-    @DecimalMin(value = "0.0", inclusive = false, message = AddArticleRequestConstants.PRICE_DECIMAL_MIN_MESSAGE)
+    @DecimalMin(value = AddArticleRequestConstants.MIN_PRICE,
+            inclusive = false,
+            message = AddArticleRequestConstants.PRICE_DECIMAL_MIN_MESSAGE)
     private BigDecimal price;
 
     @NotNull(message = AddArticleRequestConstants.CATEGORIES_NOT_NULL_MESSAGE)

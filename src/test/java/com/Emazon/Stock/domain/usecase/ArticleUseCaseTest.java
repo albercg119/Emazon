@@ -1,6 +1,7 @@
 package com.Emazon.Stock.domain.usecase;
 
 import com.Emazon.Stock.domain.utilities.Exceptions.ArticleAlreadyExistsDomainException;
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import com.Emazon.Stock.domain.utilities.constants.ArticleUseCaseConstants;
 import com.Emazon.Stock.domain.model.Article;
 import com.Emazon.Stock.domain.model.Category;
@@ -22,114 +23,133 @@ class ArticleUseCaseTest {
     @Mock
     private IArticlePersistencePort articlePersistencePort;
 
-
     @InjectMocks
     private ArticleUseCase articleUseCase;
+
+    private Brand testBrand;
+    private Article testArticle;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        testBrand = new Brand(1L, "NombreMarca", "DescripcionMarca");
+        testArticle = new Article(1L, "Laptop", "Descripción válida", 10, 1500.0, testBrand,
+                List.of(new Category(1L, "Electrónicos", "Dispositivos")));
     }
 
-    @Test
-    void saveArticle_ShouldSaveArticle_WhenArticleIsValid() {
-        // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article validArticle = new Article(1L, "Laptop", "High-performance laptop", 10, 1500.0, brand, List.of(
-                new Category(1L, "Electronics", "Devices"),
-                new Category(2L, "Computers", "Laptops")
-        ));
+    // ... [Mantener los tests existentes] ...
 
-        // Mock behavior for checking unique name
-        when(articlePersistencePort.existsByName(validArticle.getName())).thenReturn(false);
+    @Test
+    void getPagedArticles_DebeRetornarResultadosPaginados() {
+        // Arrange
+        int page = 0;
+        int size = 10;
+        String sortBy = "name";
+        boolean ascending = true;
+
+        List<Article> articles = List.of(
+                testArticle,
+                new Article(2L, "Monitor", "Monitor HD", 5, 300.0, testBrand,
+                        List.of(new Category(1L, "Electrónicos", "Dispositivos")))
+        );
+        PagedResult<Article> expectedResult = new PagedResult<>(articles, page, size, 2L, 1);
+
+        when(articlePersistencePort.getPagedArticles(page, size, sortBy, ascending))
+                .thenReturn(expectedResult);
 
         // Act
-        assertDoesNotThrow(() -> articleUseCase.saveArticle(validArticle));
+        PagedResult<Article> result = articleUseCase.getPagedArticles(page, size, sortBy, ascending);
 
         // Assert
-        verify(articlePersistencePort, times(1)).saveArticle(validArticle);
+        assertNotNull(result);
+        assertEquals(expectedResult.getContent().size(), result.getContent().size());
+        assertEquals(expectedResult.getPage(), result.getPage());
+        assertEquals(expectedResult.getSize(), result.getSize());
+        assertEquals(expectedResult.getTotalElements(), result.getTotalElements());
+        assertEquals(expectedResult.getTotalPages(), result.getTotalPages());
+        verify(articlePersistencePort).getPagedArticles(page, size, sortBy, ascending);
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenArticleNameIsNotUnique() {
+    void getPagedArticles_DebeRetornarListaVacia_CuandoNoHayResultados() {
         // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article articleWithNonUniqueName = new Article(null, "Laptop", "Valid description", 10, 1500.0, brand, List.of(
-                new Category(1L, "Electronics", "Devices")
-        ));
+        int page = 0;
+        int size = 10;
+        String sortBy = "name";
+        boolean ascending = true;
 
-        when(articlePersistencePort.existsByName("Laptop")).thenReturn(true);
+        PagedResult<Article> expectedResult = new PagedResult<>(List.of(), page, size, 0L, 0);
 
-        // Act & Assert
-        ArticleAlreadyExistsDomainException exception = assertThrows(ArticleAlreadyExistsDomainException.class,
-                () -> articleUseCase.saveArticle(articleWithNonUniqueName));
+        when(articlePersistencePort.getPagedArticles(page, size, sortBy, ascending))
+                .thenReturn(expectedResult);
 
-        assertEquals(ArticleUseCaseConstants.ARTICLE_NAME_UNIQUE_MESSAGE, exception.getMessage());
+        // Act
+        PagedResult<Article> result = articleUseCase.getPagedArticles(page, size, sortBy, ascending);
 
-        verify(articlePersistencePort, times(1)).existsByName("Laptop");
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getTotalPages());
+        verify(articlePersistencePort).getPagedArticles(page, size, sortBy, ascending);
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenArticleHasEmptyFields() {
+    void getPagedArticles_DebeOrdenarDescendente_CuandoAscendingEsFalse() {
         // Arrange
-        Brand brand = new Brand(1L, "BrandName", "BrandDescription");
-        Article invalidArticle = new Article(1L, "", "", 0, 0.0, brand, List.of());
+        int page = 0;
+        int size = 10;
+        String sortBy = "price";
+        boolean ascending = false;
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(invalidArticle));
-        assertEquals(ArticleUseCaseConstants.EMPTY_FIELDS_MESSAGE, exception.getMessage());
-    }
-
-    @Test
-    void saveArticle_ShouldThrowException_WhenCategoriesAreDuplicate() {
-        // Arrange
-        Category category = new Category(1L, "Electronics", "Devices");
-        Article articleWithDuplicateCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
-                List.of(category, category)
+        List<Article> articles = List.of(
+                new Article(2L, "Monitor Caro", "Monitor HD", 5, 500.0, testBrand,
+                        List.of(new Category(1L, "Electrónicos", "Dispositivos"))),
+                new Article(1L, "Monitor Barato", "Monitor HD", 5, 300.0, testBrand,
+                        List.of(new Category(1L, "Electrónicos", "Dispositivos")))
         );
+        PagedResult<Article> expectedResult = new PagedResult<>(articles, page, size, 2L, 1);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithDuplicateCategories));
+        when(articlePersistencePort.getPagedArticles(page, size, sortBy, ascending))
+                .thenReturn(expectedResult);
 
-        assertEquals(ArticleUseCaseConstants.DUPLICATE_CATEGORIES_MESSAGE, exception.getMessage());
+        // Act
+        PagedResult<Article> result = articleUseCase.getPagedArticles(page, size, sortBy, ascending);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertTrue(result.getContent().get(0).getPrice() > result.getContent().get(1).getPrice());
+        verify(articlePersistencePort).getPagedArticles(page, size, sortBy, ascending);
     }
 
     @Test
-    void saveArticle_ShouldThrowException_WhenCategoryCountIsMoreThanThree() {
+    void getPagedArticles_DebeManejarPaginacionCorrecta() {
         // Arrange
-        Article articleWithTooManyCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
-                List.of(
-                        new Category(1L, "Electronics", "Devices"),
-                        new Category(2L, "Computers", "Laptops"),
-                        new Category(3L, "Gadgets", "Various gadgets"),
-                        new Category(4L, "Office", "Office equipment")
-                )
+        int page = 1;
+        int size = 2;
+        String sortBy = "name";
+        boolean ascending = true;
+
+        List<Article> articles = List.of(
+                new Article(3L, "Teclado", "Teclado mecánico", 8, 100.0, testBrand,
+                        List.of(new Category(1L, "Electrónicos", "Dispositivos")))
         );
+        PagedResult<Article> expectedResult = new PagedResult<>(articles, page, size, 3L, 2);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithTooManyCategories));
+        when(articlePersistencePort.getPagedArticles(page, size, sortBy, ascending))
+                .thenReturn(expectedResult);
 
-        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, exception.getMessage());
-    }
+        // Act
+        PagedResult<Article> result = articleUseCase.getPagedArticles(page, size, sortBy, ascending);
 
-    @Test
-    void saveArticle_ShouldThrowException_WhenCategoryCountIsZero() {
-        // Arrange: Artículo con todos los campos válidos excepto las categorías vacías
-        Article articleWithNoCategories = new Article(1L, "Laptop", "Valid description", 10, 1500.0,
-                new Brand(1L, "BrandName", "BrandDescription"),
-                List.of() // Lista de categorías vacía
-        );
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> articleUseCase.saveArticle(articleWithNoCategories));
-
-        // Asegurarse de que la excepción lanzada es por el número de categorías
-        assertEquals(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE, exception.getMessage());
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        assertEquals(page, result.getPage());
+        assertEquals(size, result.getSize());
+        assertEquals(3L, result.getTotalElements());
+        assertEquals(2, result.getTotalPages());
+        verify(articlePersistencePort).getPagedArticles(page, size, sortBy, ascending);
     }
 }

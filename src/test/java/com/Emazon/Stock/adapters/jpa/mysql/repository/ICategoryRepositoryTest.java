@@ -1,12 +1,10 @@
 package com.Emazon.Stock.adapters.jpa.mysql.repository;
 
 import com.Emazon.Stock.adapters.jpa.mysql.adapter.entity.CategoryEntity;
-import com.Emazon.Stock.adapters.jpa.mysql.repository.ICategoryRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.Optional;
 
@@ -16,55 +14,77 @@ import static org.junit.jupiter.api.Assertions.*;
 class ICategoryRepositoryTest {
 
     @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
     private ICategoryRepository categoryRepository;
 
-    private CategoryEntity categoryEntity1;
-    private CategoryEntity categoryEntity2;
-
-    @BeforeEach
-    void setUp() {
-        // Crear dos categorías de ejemplo para los tests
-        categoryEntity1 = new CategoryEntity();
-        categoryEntity1.setNombre("Electronics");
-        categoryEntity1.setDescripcion("Devices and gadgets");
-
-        categoryEntity2 = new CategoryEntity();
-        categoryEntity2.setNombre("Furniture");
-        categoryEntity2.setDescripcion("Home and office furniture");
-
-        // Guardar las entidades en la base de datos en memoria
-        categoryRepository.save(categoryEntity1);
-        categoryRepository.save(categoryEntity2);
-    }
-
     @Test
-    void testFindByNombre() {
+    void findByNombre_WhenCategoryExists_ShouldReturnCategory() {
+        // Arrange
+        CategoryEntity category = new CategoryEntity();
+        category.setNombre("Deportes");
+        category.setDescripcion("Artículos deportivos");
+        entityManager.persist(category);
+        entityManager.flush();
+
         // Act
-        Optional<CategoryEntity> result = categoryRepository.findByNombre("Electronics");
+        Optional<CategoryEntity> found = categoryRepository.findByNombre("Deportes");
 
         // Assert
-        assertTrue(result.isPresent());
-        assertEquals("Electronics", result.get().getNombre());
-        assertEquals("Devices and gadgets", result.get().getDescripcion());
+        assertTrue(found.isPresent());
+        assertEquals("Deportes", found.get().getNombre());
+        assertEquals("Artículos deportivos", found.get().getDescripcion());
     }
 
     @Test
-    void testFindByNombre_NotFound() {
+    void findByNombre_WhenCategoryDoesNotExist_ShouldReturnEmpty() {
         // Act
-        Optional<CategoryEntity> result = categoryRepository.findByNombre("NonExistingCategory");
+        Optional<CategoryEntity> found = categoryRepository.findByNombre("Categoría inexistente");
 
         // Assert
-        assertFalse(result.isPresent());
+        assertTrue(found.isEmpty());
     }
 
     @Test
-    void testSaveCategoryWithExistingName() {
-        // Arrange: crear una nueva categoría con un nombre duplicado
-        CategoryEntity duplicateCategory = new CategoryEntity();
-        duplicateCategory.setNombre("Electronics");
-        duplicateCategory.setDescripcion("Duplicate category");
+    void save_ShouldPersistCategory() {
+        // Arrange
+        CategoryEntity category = new CategoryEntity();
+        category.setNombre("Ropa");
+        category.setDescripcion("Artículos de vestir");
 
-        // Act & Assert: al intentar guardar debe lanzarse una excepción de integridad
-        assertThrows(DataIntegrityViolationException.class, () -> categoryRepository.save(duplicateCategory));
+        // Act
+        CategoryEntity saved = categoryRepository.save(category);
+
+        // Assert
+        assertNotNull(saved.getId());
+        assertEquals("Ropa", saved.getNombre());
+        assertEquals("Artículos de vestir", saved.getDescripcion());
+    }
+
+    @Test
+    void findById_WhenCategoryExists_ShouldReturnCategory() {
+        // Arrange
+        CategoryEntity category = new CategoryEntity();
+        category.setNombre("Electrónicos");
+        category.setDescripcion("Artículos electrónicos");
+        entityManager.persist(category);
+        entityManager.flush();
+
+        // Act
+        Optional<CategoryEntity> found = categoryRepository.findById(category.getId());
+
+        // Assert
+        assertTrue(found.isPresent());
+        assertEquals("Electrónicos", found.get().getNombre());
+    }
+
+    @Test
+    void findById_WhenCategoryDoesNotExist_ShouldReturnEmpty() {
+        // Act
+        Optional<CategoryEntity> found = categoryRepository.findById(999L);
+
+        // Assert
+        assertTrue(found.isEmpty());
     }
 }

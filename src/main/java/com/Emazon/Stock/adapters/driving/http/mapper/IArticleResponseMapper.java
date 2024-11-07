@@ -1,5 +1,6 @@
 package com.Emazon.Stock.adapters.driving.http.mapper;
 
+import com.Emazon.Stock.adapters.driving.http.dto.response.CategorySimpleResponse;
 import com.Emazon.Stock.domain.model.Article;
 import com.Emazon.Stock.adapters.driving.http.dto.response.ArticleResponse;
 import com.Emazon.Stock.adapters.driving.http.dto.response.CategoryResponse;
@@ -9,6 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import com.Emazon.Stock.domain.utilities.PagedResult;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,16 +26,15 @@ public interface IArticleResponseMapper {
     @Mapping(source = "categories", target = "categories", qualifiedByName = "mapCategories")
     ArticleResponse toArticleResponse(Article article);
 
-
     List<ArticleResponse> toArticleResponseList(List<Article> articles);
 
     @Named("mapCategories")
-    default List<CategoryResponse> mapCategories(List<Category> categories) {
+    default List<CategorySimpleResponse> mapCategories(List<Category> categories) {
         return categories.stream()
-                .map(category -> new CategoryResponse(category.getId(), category.getNombre(), null))
+                .sorted(Comparator.comparing(Category::getNombre))
+                .map(category -> new CategorySimpleResponse(category.getId(), category.getNombre()))
                 .collect(Collectors.toList());
     }
-
 
     default PagedResult<ArticleResponse> toArticleResponsePagedResult(PagedResult<Article> pagedResult) {
         List<ArticleResponse> articleResponses = toArticleResponseList(pagedResult.getContent());

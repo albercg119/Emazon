@@ -24,9 +24,9 @@ public class ArticleUseCase implements IArticleServicePort {
 
     @Override
     public void saveArticle(Article article) {
-
         if (article.getName().isEmpty() || article.getDescription().isEmpty()
-                || article.getPrice() <= 0 || article.getStockQuantity() <= 0) {
+                || article.getPrice() <= ArticleUseCaseConstants.MIN_PRICE
+                || article.getStockQuantity() <= ArticleUseCaseConstants.MIN_STOCK) {
             throw new IllegalArgumentException(ArticleUseCaseConstants.EMPTY_FIELDS_MESSAGE);
         }
 
@@ -44,7 +44,8 @@ public class ArticleUseCase implements IArticleServicePort {
             throw new IllegalArgumentException(ArticleUseCaseConstants.DUPLICATE_CATEGORIES_MESSAGE);
         }
 
-        if (categoryIds.size() > 3) {
+        if (categoryIds.size() > ArticleUseCaseConstants.MAX_CATEGORIES ||
+                categoryIds.size() < ArticleUseCaseConstants.MIN_CATEGORIES) {
             throw new IllegalArgumentException(ArticleUseCaseConstants.CATEGORY_COUNT_MESSAGE);
         }
 
@@ -53,7 +54,6 @@ public class ArticleUseCase implements IArticleServicePort {
 
     private void checkIfNameIsUnique(String name) {
         boolean exists = articlePersistencePort.existsByName(name);
-
         if (exists) {
             throw new ArticleAlreadyExistsDomainException(ArticleUseCaseConstants.ARTICLE_NAME_UNIQUE_MESSAGE);
         }

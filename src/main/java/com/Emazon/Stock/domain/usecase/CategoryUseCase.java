@@ -25,6 +25,11 @@ public class CategoryUseCase implements ICategoryServicePort {
     }
 
     @Override
+    public Category getCategoryById(Long id) {
+        return categoryPersistencePort.getCategoryById(id);
+    }
+
+    @Override
     public List<Category> getAllCategories() {
         return categoryPersistencePort.getAllCategories();
     }
@@ -34,11 +39,6 @@ public class CategoryUseCase implements ICategoryServicePort {
         return categoryPersistencePort.getPagedCategories(page, size, ascending);
     }
 
-    @Override
-    public Category getCategoryById(Long id) {
-        return categoryPersistencePort.getCategoryById(id);
-    }
-
     private void validateCategory(Category category) {
         if (category == null) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NULL_EXCEPTION_MESSAGE);
@@ -46,13 +46,13 @@ public class CategoryUseCase implements ICategoryServicePort {
         if (category.getNombre() == null || category.getNombre().isEmpty()) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_NULL_OR_EMPTY_MESSAGE);
         }
-        if (category.getNombre().length() > 50) {
+        if (category.getNombre().length() > CategoryUseCaseConstants.MAX_NAME_LENGTH) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_NAME_LENGTH_MESSAGE);
         }
         if (category.getDescripcion() == null || category.getDescripcion().isEmpty()) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_NULL_OR_EMPTY_MESSAGE);
         }
-        if (category.getDescripcion().length() > 90) {
+        if (category.getDescripcion().length() > CategoryUseCaseConstants.MAX_DESCRIPTION_LENGTH) {
             throw new IllegalArgumentException(CategoryUseCaseConstants.CATEGORY_DESCRIPTION_LENGTH_MESSAGE);
         }
     }

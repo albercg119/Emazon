@@ -1,5 +1,6 @@
-package com.Emazon.Stock.domain.utilities;
+package com.Emazon.Stock.configuration.utilities;
 
+import com.Emazon.Stock.domain.utilities.PagedResult;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;

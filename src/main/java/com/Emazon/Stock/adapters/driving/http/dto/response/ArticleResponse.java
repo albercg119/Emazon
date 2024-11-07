@@ -3,16 +3,21 @@ package com.Emazon.Stock.adapters.driving.http.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArticleResponse {
     private Long id;
     private String name;
     private String description;
     private Double price;
     private String brandName;
-    private List<CategoryResponse> categories;
+    private List<CategorySimpleResponse> categories;
 
+    public List<CategorySimpleResponse> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<CategorySimpleResponse> categories) {
+        this.categories = categories;
+    }
 
     public Long getId() {
         return id;
@@ -54,11 +59,4 @@ public class ArticleResponse {
         this.brandName = brandName;
     }
 
-    public List<CategoryResponse> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<CategoryResponse> categories) {
-        this.categories = categories;
-    }
 }

@@ -2,63 +2,76 @@ package com.Emazon.Stock.adapters.driving.http.dto.response;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ArticleResponseTest {
 
-    @InjectMocks
     private ArticleResponse articleResponse;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        articleResponse = new ArticleResponse();
     }
 
     @Test
-    void testGettersAndSetters() {
-        // Creación de datos de prueba
-        Long id = 1L;
-        String name = "Artículo de prueba";
-        String description = "Descripción del artículo de prueba";
-        Double price = 99.99;
-        String brandName = "Marca de prueba";
-        Long categoryId = 1L;
-        String categoryName = "Categoría de prueba";
-        CategoryResponse categoryResponse = new CategoryResponse(categoryId, categoryName, null);
-        List<CategoryResponse> categories = List.of(categoryResponse);
-
-
-
-        articleResponse.setId(id);
-        articleResponse.setName(name);
-        articleResponse.setDescription(description);
-        articleResponse.setPrice(price);
-        articleResponse.setBrandName(brandName);
-        articleResponse.setCategories(categories);
-
-
-        assertEquals(id, articleResponse.getId());
-        assertEquals(name, articleResponse.getName());
-        assertEquals(description, articleResponse.getDescription());
-        assertEquals(price, articleResponse.getPrice());
-        assertEquals(brandName, articleResponse.getBrandName());
-        assertEquals(categories, articleResponse.getCategories());
+    void shouldSetAndGetId() {
+        Long expectedId = 1L;
+        articleResponse.setId(expectedId);
+        assertEquals(expectedId, articleResponse.getId());
     }
 
     @Test
-    void testNullValues() {
+    void shouldSetAndGetName() {
+        String expectedName = "Test Article";
+        articleResponse.setName(expectedName);
+        assertEquals(expectedName, articleResponse.getName());
+    }
 
-        assertNull(articleResponse.getId());
-        assertNull(articleResponse.getName());
-        assertNull(articleResponse.getDescription());
-        assertNull(articleResponse.getPrice());
-        assertNull(articleResponse.getBrandName());
-        assertNull(articleResponse.getCategories());
+    @Test
+    void shouldSetAndGetDescription() {
+        String expectedDescription = "Test Description";
+        articleResponse.setDescription(expectedDescription);
+        assertEquals(expectedDescription, articleResponse.getDescription());
+    }
+
+    @Test
+    void shouldSetAndGetPrice() {
+        Double expectedPrice = 99.99;
+        articleResponse.setPrice(expectedPrice);
+        assertEquals(expectedPrice, articleResponse.getPrice());
+    }
+
+    @Test
+    void shouldSetAndGetBrandName() {
+        String expectedBrandName = "Test Brand";
+        articleResponse.setBrandName(expectedBrandName);
+        assertEquals(expectedBrandName, articleResponse.getBrandName());
+    }
+
+    @Test
+    void shouldSetAndGetCategories() {
+        List<CategorySimpleResponse> expectedCategories = Arrays.asList(
+                new CategorySimpleResponse(1L, "Category 1"),
+                new CategorySimpleResponse(2L, "Category 2")
+        );
+        articleResponse.setCategories(expectedCategories);
+
+        assertNotNull(articleResponse.getCategories());
+        assertEquals(expectedCategories.size(), articleResponse.getCategories().size());
+        assertEquals(expectedCategories, articleResponse.getCategories());
+    }
+
+    @Test
+    void shouldInitializeWithNullValues() {
+        ArticleResponse newResponse = new ArticleResponse();
+        assertNull(newResponse.getId());
+        assertNull(newResponse.getName());
+        assertNull(newResponse.getDescription());
+        assertNull(newResponse.getPrice());
+        assertNull(newResponse.getBrandName());
+        assertNull(newResponse.getCategories());
     }
 }
