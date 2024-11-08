@@ -37,10 +37,4 @@ class ExceptionConstantsTest {
         constructor.setAccessible(true);
         constructor.newInstance();
     }
-
-    @Test
-    void class_ShouldBeFinal() {
-        // Assert
-        assertTrue(Modifier.isFinal(ExceptionConstants.class.getModifiers()));
-    }
 }

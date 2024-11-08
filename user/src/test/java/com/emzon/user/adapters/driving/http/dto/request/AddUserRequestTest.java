@@ -1,10 +1,17 @@
 package com.emzon.user.adapters.driving.http.dto.request;
 
 import org.junit.jupiter.api.Test;
+
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AddUserRequestTest {
@@ -45,18 +52,40 @@ class AddUserRequestTest {
 
     @Test
     void whenEmptyFields_ShouldHaveViolations() {
+        // Arrange
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         AddUserRequest request = new AddUserRequest(
-                "",
-                "",
-                "",
-                "",
-                LocalDate.now(),
-                "",
-                ""
+                "",             // name
+                "",             // lastName
+                "",             // documentId
+                "",             // phone
+                null,           // birthDate
+                "",             // email
+                ""              // password
         );
 
-        var violations = validator.validate(request);
-        assertEquals(6, violations.size()); // birthDate no está vacío
+        // Act
+        Set<ConstraintViolation<AddUserRequest>> violations = validator.validate(request);
+
+        // Assert
+        assertNotNull(violations, "El conjunto de violaciones no debería ser null");
+        assertEquals(7, violations.size(), "Deberían haber 7 violaciones");
+
+        Map<String, String> violationMap = violations.stream()
+                .collect(Collectors.toMap(
+                        v -> v.getPropertyPath().toString(),
+                        ConstraintViolation::getMessage
+                ));
+
+        assertAll("Verificar todas las violaciones",
+                () -> assertTrue(violationMap.containsKey("name"), "Debería contener violación para name"),
+                () -> assertTrue(violationMap.containsKey("lastName"), "Debería contener violación para lastName"),
+                () -> assertTrue(violationMap.containsKey("documentId"), "Debería contener violación para documentId"),
+                () -> assertTrue(violationMap.containsKey("phone"), "Debería contener violación para phone"),
+                () -> assertTrue(violationMap.containsKey("birthDate"), "Debería contener violación para birthDate"),
+                () -> assertTrue(violationMap.containsKey("email"), "Debería contener violación para email"),
+                () -> assertTrue(violationMap.containsKey("password"), "Debería contener violación para password")
+        );
     }
 
     @Test

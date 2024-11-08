@@ -12,6 +12,7 @@ class UserControllerConstantsTest {
     void verificarRutas() {
         assertEquals("/users", UserControllerConstants.BASE_PATH);
         assertEquals("/create", UserControllerConstants.CREATE_PATH);
+        assertEquals("/count", UserControllerConstants.COUNT_PATH);
     }
 
     @Test
@@ -24,16 +25,20 @@ class UserControllerConstantsTest {
     }
 
     @Test
+    void verificarDocumentacionCount() {
+        assertEquals("Get total number of users", UserControllerConstants.COUNT_OPERATION_SUMMARY);
+        assertEquals("Returns the total count of registered users in the system",
+                UserControllerConstants.COUNT_OPERATION_DESCRIPTION);
+    }
+
+    @Test
     void verificarCodigosRespuesta() {
-        // 201
+        assertEquals("200", UserControllerConstants.RESPONSE_200_CODE);
+        assertEquals("Successfully retrieved count", UserControllerConstants.RESPONSE_200_MESSAGE);
         assertEquals("201", UserControllerConstants.RESPONSE_201_CODE);
         assertEquals("Usuario creado exitosamente", UserControllerConstants.RESPONSE_201_MESSAGE);
-
-        // 400
         assertEquals("400", UserControllerConstants.RESPONSE_400_CODE);
         assertEquals("Datos de entrada inválidos", UserControllerConstants.RESPONSE_400_MESSAGE);
-
-        // 500
         assertEquals("500", UserControllerConstants.RESPONSE_500_CODE);
         assertEquals("Error interno del servidor", UserControllerConstants.RESPONSE_500_MESSAGE);
     }

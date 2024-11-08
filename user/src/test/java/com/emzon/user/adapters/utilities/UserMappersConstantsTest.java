@@ -9,12 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserMappersConstantsTest {
 
     @Test
-    void verificarConstantesDeComponente() {
+    void verificarConstantesDeSistema() {
         assertEquals("spring", UserMappersConstants.SPRING_COMPONENT_MODEL);
-    }
-
-    @Test
-    void verificarConstantesDeMapeo() {
         assertEquals("id", UserMappersConstants.TARGET_ID);
         assertEquals("role", UserMappersConstants.TARGET_ROLE);
         assertEquals("AUXILIARY_WAREHOUSE", UserMappersConstants.AUXILIARY_WAREHOUSE_ROLE);

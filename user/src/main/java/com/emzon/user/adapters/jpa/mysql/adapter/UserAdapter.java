@@ -27,6 +27,7 @@ public class UserAdapter implements IUserPersistencePort {
 
     @Override
     public boolean existsByEmail(String email) {
+
         return userRepository.existsByEmail(email);
     }
 
@@ -34,4 +35,17 @@ public class UserAdapter implements IUserPersistencePort {
     public boolean existsByDocumentId(String documentId) {
         return userRepository.existsByDocumentId(documentId);
     }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(userEntityMapper::toDomain)
+                .orElse(null);
+    }
+
+    @Override
+    public long countUsers() {
+        return userRepository.count();
+    }
+
 }

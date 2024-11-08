@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(UserControllerConstants.BASE_PATH)
@@ -52,5 +49,20 @@ public class UserRestControllerAdapter {
         userServicePort.createAuxBodegaUser(user);
         var userResponse = userResponseMapper.toResponse(user);
         return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
+    }
+    @Operation(
+            summary = UserControllerConstants.COUNT_OPERATION_SUMMARY,
+            description = UserControllerConstants.COUNT_OPERATION_DESCRIPTION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = UserControllerConstants.RESPONSE_200_CODE,
+                    description = UserControllerConstants.RESPONSE_200_MESSAGE),
+            @ApiResponse(responseCode = UserControllerConstants.RESPONSE_500_CODE,
+                    description = UserControllerConstants.RESPONSE_500_MESSAGE)
+    })
+    @GetMapping(UserControllerConstants.COUNT_PATH)
+    public ResponseEntity<Long> getUserCount() {
+        long count = userServicePort.countUsers();
+        return ResponseEntity.ok(count);
     }
 }

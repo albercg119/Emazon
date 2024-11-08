@@ -17,6 +17,14 @@ public class UserControllerConstants {
     public static final String RESPONSE_500_CODE = "500";
     public static final String RESPONSE_500_MESSAGE = "Error interno del servidor";
 
+    public static final String COUNT_PATH = "/count";
+
+    public static final String COUNT_OPERATION_SUMMARY = "Get total number of users";
+    public static final String COUNT_OPERATION_DESCRIPTION = "Returns the total count of registered users in the system";
+
+    public static final String RESPONSE_200_CODE = "200";
+    public static final String RESPONSE_200_MESSAGE = "Successfully retrieved count";
+
     private UserControllerConstants() {
         throw new IllegalStateException("Utility class");
     }
